@@ -2,6 +2,8 @@
 
 Using this [Terraform][] [module][], you can launch your own [DCOS][] cluster.
 
+![DCOS](/doc/images/dcos.png)
+
 ## Configurables
 
 See [`variables.tf`](variables.tf) for a list of configurable parameters.
@@ -16,7 +18,7 @@ To include this module in your Terraform code-base, use the following snippet:
 
 ```hcl
 module "dcos" {
-  source = "github.com/jeanmertz/terraform-dcos"
+  source = "github.com/zutherb/terraform-dcos"
 
   aws_access_key = "..."
   aws_secret_key = "..."
@@ -44,5 +46,3 @@ ssh_public_key="ssh-rsa ***** bernd.zuther@codecentric.de"
 ```
 * *optionally* run `terraform plan -out terraform.plan`
 * run `terraform apply [terraform.plan]`
-
-## Dependency Graph
