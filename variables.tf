@@ -22,6 +22,10 @@ variable "openvpn_admin_pw" {
   description = "Password of the open VPN Admin User"
 }
 
+variable "exhibitor_uid" {
+  description = "Unique Intentifier"
+}
+
 ###############################
 ### CONFIGURABLE PARAMETERS ###
 ###############################
@@ -31,9 +35,14 @@ variable "stack_name" {
   default = "DCOS"
 }
 
+variable "elb_version" {
+  description = "Loadbalancer Version"
+  default = ""
+}
+
 variable "slave_instance_count" {
   description = "Number of slave nodes to launch"
-  default = 6
+  default = 8
 }
 
 variable "public_slave_instance_count" {
@@ -114,17 +123,17 @@ variable "fallback_dns" {
 variable "coreos_amis" {
   description = "AMI for CoreOS machine"
   default = {
-    us-west-1       = "ami-d8770bb8"
-    ap-northeast-1  = "ami-e304148d"
-    ap-northeast-2  = "ami-131dd47d"
-    us-gov-west-1   = "ami-cf19a5ae"
-    us-west-2       = "ami-4f7f8a2f"
-    us-east-1       = "ami-7a627510"
-    sa-east-1       = "ami-d75bd4bb"
-    ap-southeast-2  = "ami-a184a7c2"
-    eu-west-1       = "ami-3b941448"
-    eu-central-1    = "ami-e13fde8e"
-    ap-southeast-1  = "ami-52a07531"
+    us-west-1       = "ami-bc2465dc"
+    ap-northeast-1  = "ami-fcd9209d"
+    ap-northeast-2  = "ami-91de14ff"
+    us-gov-west-1   = "ami-1d66d87c"
+    us-west-2       = "ami-cfef22af"
+    us-east-1       = "ami-cbb5d5b8"
+    sa-east-1       = "ami-ef43d783"
+    ap-southeast-2  = "ami-e8e4ce8b"
+    eu-west-1       = "ami-cbb5d5b8"
+    eu-central-1    = "ami-7b7a8f14"
+    ap-southeast-1  = "ami-9b00dcf8"
   }
 }
 
@@ -160,21 +169,6 @@ variable "dns_domainnames" {
   }
 }
 
-variable "vpn_amis" {
-  description = "VPN AMIs for regions"
-  default = {
-    us-west-1       = "ami-20423a40"
-    ap-northeast-1  = "ami-f33bda92"
-    us-west-2       = "ami-a1b847c1"
-    us-east-1       = "ami-7ab25917"
-    sa-east-1       = "ami-1356de7f"
-    ap-southeast-2  = "ami-f3331c90"
-    eu-west-1       = "ami-c61185b5"
-    eu-central-1    = "ami-51e30f3e"
-    ap-southeast-1  = "ami-47518724"
-  }
-}
-
 variable "ubuntu_amis" {
   description = "Ubuntu AMIs for regions"
   default = {
@@ -184,31 +178,10 @@ variable "ubuntu_amis" {
     us-east-1       = "ami-304b8e5d"
     sa-east-1       = "ami-8d9913e1"
     ap-southeast-2  = "ami-62e3ca01"
-    eu-west-1       = "ami-564e0b36"
+    eu-west-1       = "ami-1dec736e"
     eu-central-1    = "ami-e3f0198c"
     ap-southeast-1  = "ami-eda0738e"
   }
-}
-
-variable "filebeat_download_url" {
-  description = "filebeats download url"
-  default = "https://download.elastic.co/beats/filebeat/filebeat-1.2.1-x86_64.tar.gz"
-}
-
-variable "filebeats_configuration" {
-  description = "filebeats configuration file"
-  default = <<EOF
-filebeat:
-  prospectors:
-    - paths:
-        - "/var/lib/mesos/slave/slaves/*/frameworks/*/executors/*/runs/latest/stdout"
-        - "/var/lib/mesos/slave/slaves/*/frameworks/*/executors/*/runs/latest/stderr"
-      fields:
-        node: "###NODE_TYPE###"
-output:
-  logstash:
-    hosts: ["logstash.marathon.mesos:5044"]
-EOF
 }
 
 variable "authentication_enabled" {
@@ -216,18 +189,22 @@ variable "authentication_enabled" {
   default = true
 }
 
-variable "bootstrap_id" {
-  description = "bootstrap id that is used to download the bootstrap files"
-  default = "3a2b7e03c45cd615da8dfb1b103943894652cd71"
+variable "dcos_base_download_url" {
+  description = "base url that is used to download the dcos"
+  default = "https://downloads.dcos.io/dcos/stable"
 }
 
+variable "bootstrap_id" {
+  description = "bootstrap id that is used to download the bootstrap files"
+  default = "5b4aa43610c57ee1d60b4aa0751a1fb75824c083"
+}
 
 variable "cluster_packages" {
   description = "cluster packages for single master setup"
   default = <<EOF
     [
-      "dcos-config--setup_537afa008db7ba8f99ce73f9c0ef425fa61d3454",
-      "dcos-metadata--setup_537afa008db7ba8f99ce73f9c0ef425fa61d3454"
+      "dcos-config--setup_fb65a9430d3fac1c00b3d578ff47a4969723e7ac",
+      "dcos-metadata--setup_fb65a9430d3fac1c00b3d578ff47a4969723e7ac"
     ]EOF
 }
 
@@ -235,7 +212,7 @@ variable "cluster_packages" {
 //  description = "cluster packages for multi master setup"
 //  default = <<EOF
 //    [
-//      "dcos-config--setup_b9372277c9fedaca077d7638e6e445af062d1d86",
-//      "dcos-metadata--setup_b9372277c9fedaca077d7638e6e445af062d1d86"
+//      "dcos-config--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f",
+//      "dcos-metadata--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f"
 //    ]EOF
 //}
