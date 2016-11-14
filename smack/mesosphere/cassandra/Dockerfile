@@ -16,6 +16,6 @@ RUN apt-get update && \
 # Expose ports
 EXPOSE 7199 7000 7001 9160 9042
 
-WORKDIR /opt/cassandra
+WORKDIR /opt/cassandra/bin
 
 CMD ["/opt/cassandra/bin/cassandra", "-f"]
