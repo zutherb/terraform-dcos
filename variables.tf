@@ -96,7 +96,7 @@ variable "vpc_subnet_range" {
 
 variable "master_instance_count" {
   description = "Amount of requested Masters"
-  default = 1
+  default = 3
   #when override number of instances please use an other cluster_packages (see below)
 }
 
@@ -132,6 +132,8 @@ variable "coreos_amis" {
     sa-east-1       = "ami-ef43d783"
     ap-southeast-2  = "ami-e8e4ce8b"
     eu-west-1       = "ami-cbb5d5b8"
+    //eu-west-1       = "ami-1eddf56d"
+    eu-west-2       = "ami-ebc0ca8f"
     eu-central-1    = "ami-7b7a8f14"
     ap-southeast-1  = "ami-9b00dcf8"
   }
@@ -148,6 +150,8 @@ variable "nat_amis" {
     sa-east-1       = "ami-b972dba4"
     ap-southeast-2  = "ami-996402a3"
     eu-west-1       = "ami-3760b040"
+    //eu-west-1       = "ami-d51b3ba6"
+    eu-west-2       = "ami-a7e2e8c3"
     eu-central-1    = "ami-204c7a3d"
     ap-southeast-1  = "ami-b082dae2"
   }
@@ -164,6 +168,7 @@ variable "dns_domainnames" {
     sa-east-1       = "compute.internal"
     ap-southeast-2  = "compute.internal"
     eu-west-1       = "compute.internal"
+    eu-west-2       = "compute.internal"
     eu-central-1    = "compute.internal"
     ap-southeast-1  = "compute.internal"
   }
@@ -179,6 +184,8 @@ variable "ubuntu_amis" {
     sa-east-1       = "ami-8d9913e1"
     ap-southeast-2  = "ami-62e3ca01"
     eu-west-1       = "ami-1dec736e"
+    //eu-west-1       = "ami-3680a045"
+    eu-west-2       = "ami-02e3e966"
     eu-central-1    = "ami-e3f0198c"
     ap-southeast-1  = "ami-eda0738e"
   }
@@ -199,20 +206,20 @@ variable "bootstrap_id" {
   default = "405172d16eaff8798d6b090dac99b51a8a9004d7"
 }
 
-variable "cluster_packages" {
-  description = "cluster packages for single master setup"
-  default = <<EOF
-    [
-      "dcos-config--setup_e02052aac568c6296b312fae3ba05b2631406c9f",
-      "dcos-metadata--setup_e02052aac568c6296b312fae3ba05b2631406c9f"
-    ]EOF
-}
-
 //variable "cluster_packages" {
-//  description = "cluster packages for multi master setup"
+//  description = "cluster packages for single master setup"
 //  default = <<EOF
 //    [
-//      "dcos-config--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f",
-//      "dcos-metadata--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f"
+//      "dcos-config--setup_e02052aac568c6296b312fae3ba05b2631406c9f",
+//      "dcos-metadata--setup_e02052aac568c6296b312fae3ba05b2631406c9f"
 //    ]EOF
 //}
+
+variable "cluster_packages" {
+  description = "cluster packages for multi master setup"
+  default = <<EOF
+    [
+      "dcos-config--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f",
+      "dcos-metadata--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f"
+    ]EOF
+}
