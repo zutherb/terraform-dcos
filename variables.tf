@@ -42,7 +42,7 @@ variable "elb_version" {
 
 variable "slave_instance_count" {
   description = "Number of slave nodes to launch"
-  default = 8
+  default = 5
 }
 
 variable "public_slave_instance_count" {
@@ -219,7 +219,7 @@ variable "cluster_packages" {
   description = "cluster packages for multi master setup"
   default = <<EOF
     [
-      "dcos-config--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f",
-      "dcos-metadata--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f"
+      "dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e",
+      "dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e"
     ]EOF
 }
