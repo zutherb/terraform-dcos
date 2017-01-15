@@ -203,7 +203,7 @@ variable "dcos_base_download_url" {
 
 variable "bootstrap_id" {
   description = "bootstrap id that is used to download the bootstrap files"
-  default = "405172d16eaff8798d6b090dac99b51a8a9004d7"
+  default = "e73ba2b1cd17795e4dcb3d6647d11a29b9c35084"
 }
 
 //variable "cluster_packages" {
