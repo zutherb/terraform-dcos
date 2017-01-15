@@ -210,8 +210,8 @@ variable "bootstrap_id" {
 //  description = "cluster packages for single master setup"
 //  default = <<EOF
 //    [
-//      "dcos-config--setup_e02052aac568c6296b312fae3ba05b2631406c9f",
-//      "dcos-metadata--setup_e02052aac568c6296b312fae3ba05b2631406c9f"
+//      "dcos-config--setup_350261710e452adb80359ce58c23466e2790a119",
+//      "dcos-metadata--setup_350261710e452adb80359ce58c23466e2790a119"
 //    ]EOF
 //}
 
