@@ -42,7 +42,7 @@ variable "elb_version" {
 
 variable "slave_instance_count" {
   description = "Number of slave nodes to launch"
-  default = 8
+  default = 5
 }
 
 variable "public_slave_instance_count" {
@@ -59,9 +59,13 @@ variable "admin_location" {
 ### PARAMETERS ###
 ##################
 
-variable "aws_availability_zone" {
-  description = "AWS Secret Key"
-  default = "eu-central-1b"
+variable "aws_availability_zones" {
+  description = "AWS Availability zones"
+  default = [
+    "eu-west-1a",
+    "eu-west-1b",
+    "eu-west-1c"
+  ]
 }
 
 variable "dcos_gateway_instance_type" {
@@ -90,13 +94,13 @@ variable "public_slave_instance_type" {
 }
 
 variable "vpc_subnet_range" {
-  descpiption = "The IP range of the VPC subnet"
+  description = "The IP range of the VPC subnet"
   default = "10.0.0.0/16"
 }
 
 variable "master_instance_count" {
   description = "Amount of requested Masters"
-  default = 1
+  default = 3
   #when override number of instances please use an other cluster_packages (see below)
 }
 
@@ -117,70 +121,70 @@ variable "master_subnet_range" {
 
 variable "fallback_dns" {
   description = "Fallback DNS IP"
-  default = "10.0.0.2"
+  default = "169.254.169.253"
 }
 
 variable "coreos_amis" {
   description = "AMI for CoreOS machine"
   default = {
-    us-west-1       = "ami-bc2465dc"
-    ap-northeast-1  = "ami-fcd9209d"
-    ap-northeast-2  = "ami-91de14ff"
-    us-gov-west-1   = "ami-1d66d87c"
-    us-west-2       = "ami-cfef22af"
-    us-east-1       = "ami-cbb5d5b8"
-    sa-east-1       = "ami-ef43d783"
-    ap-southeast-2  = "ami-e8e4ce8b"
-    eu-west-1       = "ami-cbb5d5b8"
-    eu-central-1    = "ami-7b7a8f14"
-    ap-southeast-1  = "ami-9b00dcf8"
+    ap-northeast-1  = "ami-965899f7"
+    ap-southeast-1  = "ami-3120fe52"
+    ap-southeast-2  = "ami-b1291dd2"
+    eu-central-1    = "ami-3ae31555"
+    eu-west-1       = "ami-b7cba3c4"
+    sa-east-1       = "ami-61e3750d"
+    us-east-1       = "ami-6d138f7a"
+    us-gov-west-1   = "ami-b712acd6"
+    us-west-1       = "ami-ee57148e"
+    us-west-2       = "ami-dc6ba3bc"
   }
 }
 
 variable "nat_amis" {
   description = "AMI for Amazon NAT machine"
   default = {
-    us-west-1       = "ami-2b2b296e"
     ap-northeast-1  = "ami-55c29e54"
-    us-gov-west-1   = "ami-bb69128b"
-    us-west-2       = "ami-00ebfc61"
-    us-east-1       = "ami-4c9e4b24"
-    sa-east-1       = "ami-b972dba4"
-    ap-southeast-2  = "ami-996402a3"
-    eu-west-1       = "ami-3760b040"
-    eu-central-1    = "ami-204c7a3d"
     ap-southeast-1  = "ami-b082dae2"
+    ap-southeast-2  = "ami-996402a3"
+    eu-central-1    = "ami-204c7a3d"
+    eu-west-1       = "ami-3760b040"
+    sa-east-1       = "ami-b972dba4"
+    us-east-1       = "ami-4c9e4b24"
+    us-gov-west-1   = "ami-e8ab1489"
+    us-west-1       = "ami-2b2b296e"
+    us-west-2       = "ami-bb69128b"
   }
 }
 
 variable "dns_domainnames" {
   description = "DNS Names for regions"
   default = {
-    us-west-1       = "compute.internal"
     ap-northeast-1  = "compute.internal"
-    us-gov-west-1   = "compute.internal"
-    us-west-2       = "compute.internal"
-    us-east-1       = "ec2.internal"
-    sa-east-1       = "compute.internal"
-    ap-southeast-2  = "compute.internal"
-    eu-west-1       = "compute.internal"
-    eu-central-1    = "compute.internal"
     ap-southeast-1  = "compute.internal"
+    ap-southeast-2  = "compute.internal"
+    eu-central-1    = "compute.internal"
+    eu-west-1       = "compute.internal"
+    eu-west-2       = "compute.internal"
+    sa-east-1       = "compute.internal"
+    us-east-1       = "ec2.internal"
+    us-gov-west-1   = "compute.internal"
+    us-west-1       = "compute.internal"
+    us-west-2       = "compute.internal"
   }
 }
 
 variable "ubuntu_amis" {
   description = "Ubuntu AMIs for regions"
   default = {
-    us-west-1       = "ami-1dec736e"
-    ap-northeast-1  = "ami-1707ec76"
-    us-west-2       = "ami-e97d8789"
-    us-east-1       = "ami-304b8e5d"
-    sa-east-1       = "ami-8d9913e1"
-    ap-southeast-2  = "ami-62e3ca01"
-    eu-west-1       = "ami-1dec736e"
-    eu-central-1    = "ami-e3f0198c"
-    ap-southeast-1  = "ami-eda0738e"
+    ap-northeast-1  = "ami-2f4d3148"
+    ap-southeast-1  = "ami-f6953e95"
+    ap-southeast-2  = "ami-f5717596"
+    eu-central-1    = "ami-59ed2136"
+    eu-west-1       = "ami-ddfbd1ae"
+    sa-east-1       = "ami-4a79e326"
+    us-east-1       = "ami-43c92455"
+    us-west-1       = "ami-eb94c78b"
+    us-west-2       = "ami-e9873a89"
   }
 }
 
@@ -196,23 +200,23 @@ variable "dcos_base_download_url" {
 
 variable "bootstrap_id" {
   description = "bootstrap id that is used to download the bootstrap files"
-  default = "405172d16eaff8798d6b090dac99b51a8a9004d7"
-}
-
-variable "cluster_packages" {
-  description = "cluster packages for single master setup"
-  default = <<EOF
-    [
-      "dcos-config--setup_e02052aac568c6296b312fae3ba05b2631406c9f",
-      "dcos-metadata--setup_e02052aac568c6296b312fae3ba05b2631406c9f"
-    ]EOF
+  default = "e73ba2b1cd17795e4dcb3d6647d11a29b9c35084"
 }
 
 //variable "cluster_packages" {
-//  description = "cluster packages for multi master setup"
+//  description = "cluster packages for single master setup"
 //  default = <<EOF
 //    [
-//      "dcos-config--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f",
-//      "dcos-metadata--setup_59db72c6fef6fbca04d7dce3f8dd46a39e24da0f"
+//      "dcos-config--setup_350261710e452adb80359ce58c23466e2790a119",
+//      "dcos-metadata--setup_350261710e452adb80359ce58c23466e2790a119"
 //    ]EOF
 //}
+
+variable "cluster_packages" {
+  description = "cluster packages for multi master setup"
+  default = <<EOF
+    [
+      "dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e",
+      "dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e"
+    ]EOF
+}
