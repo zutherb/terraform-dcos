@@ -200,15 +200,15 @@ variable "dcos_base_download_url" {
 
 variable "bootstrap_id" {
   description = "bootstrap id that is used to download the bootstrap files"
-  default = "e73ba2b1cd17795e4dcb3d6647d11a29b9c35084"
+  default = "5df43052907c021eeb5de145419a3da1898c58a5"
 }
 
 //variable "cluster_packages" {
 //  description = "cluster packages for single master setup"
 //  default = <<EOF
 //    [
-//      "dcos-config--setup_350261710e452adb80359ce58c23466e2790a119",
-//      "dcos-metadata--setup_350261710e452adb80359ce58c23466e2790a119"
+//      "dcos-config--setup_2e94e4f724600dd9c9b3092f28f2b89ad9005673",
+//      "dcos-metadata--setup_2e94e4f724600dd9c9b3092f28f2b89ad9005673"
 //    ]EOF
 //}
 
@@ -216,7 +216,7 @@ variable "cluster_packages" {
   description = "cluster packages for multi master setup"
   default = <<EOF
     [
-      "dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e",
-      "dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e"
+      "dcos-config--setup_3005760370194d0d05886172ae2d3d74c9cfbc89",
+      "dcos-metadata--setup_3005760370194d0d05886172ae2d3d74c9cfbc89"
     ]EOF
 }
