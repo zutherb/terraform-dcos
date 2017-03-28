@@ -6,7 +6,7 @@ resource "aws_autoscaling_group" "public_slave_server_group" {
   desired_capacity = "${var.public_slave_instance_count}"
 
   load_balancers = ["${aws_elb.public_slaves.id}"]
-  
+
   vpc_zone_identifier = ["${aws_subnet.public.id}"]
   launch_configuration = "${aws_launch_configuration.public_slave.id}"
 
