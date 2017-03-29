@@ -1,0 +1,22 @@
+resource "aws_autoscaling_group" "public_slave_server_group" {
+  name = "Public-Slaves-${var.stack_name}"
+
+  min_size = "${var.public_slave_instance_count}"
+  max_size = "${var.public_slave_instance_count}"
+  desired_capacity = "${var.public_slave_instance_count}"
+
+  load_balancers = ["${aws_elb.public_slaves.id}"]
+
+  vpc_zone_identifier = ["${var.aws_subnet_public_a_id}"]
+  launch_configuration = "${aws_launch_configuration.public_slave.id}"
+
+  tag {
+    key = "role"
+    value = "mesos-slave"
+    propagate_at_launch = true
+  }
+
+  lifecycle {
+    create_before_destroy = false
+  }
+}

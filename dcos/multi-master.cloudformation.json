@@ -1,0 +1,3496 @@
+{
+  "Parameters": {
+    "OAuthEnabled": {
+      "AllowedValues": [
+        "true",
+        "false"
+      ],
+      "Description": "\nEnable OAuth authentication",
+      "Type": "String",
+      "Default": "true"
+    },
+    "KeyName": {
+      "Description": "Required: Specify your AWS EC2 Key Pair.",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "SlaveInstanceCount": {
+      "Description": "Required: Specify the number of private agent nodes or accept the default.",
+      "Type": "Number",
+      "Default": "5"
+    },
+    "PublicSlaveInstanceCount": {
+      "Description": "Required: Specify the number of public agent nodes or accept the default.",
+      "Type": "Number",
+      "Default": "1"
+    },
+    "AdminLocation": {
+      "Default": "0.0.0.0/0",
+      "Type": "String",
+      "AllowedPattern": "^([0-9]+\\.){3}[0-9]+\\/[0-9]+$",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Description": "Optional: Specify the IP range to whitelist for access to the admin zone. Must be a valid CIDR.",
+      "ConstraintDescription": "must be a valid CIDR."
+    }
+  },
+  "Mappings": {
+    "Parameters": {
+      "PrivateSubnetRange": {
+        "default": "10.0.0.0/22"
+      },
+      "StackCreationTimeout": {
+        "default": "PT45M"
+      },
+      "PublicSubnetRange": {
+        "default": "10.0.4.0/22"
+      },
+      "SlaveInstanceType": {
+        "default": "m3.xlarge"
+      },
+      "VPCSubnetRange": {
+        "default": "10.0.0.0/16"
+      },
+      "PublicSlaveInstanceType": {
+        "default": "m3.xlarge"
+      },
+      "MasterInstanceType": {
+        "default": "m3.xlarge"
+      }
+    },
+    "NATAmi": {
+      "eu-central-1": {
+        "default": "ami-204c7a3d"
+      },
+      "eu-west-1": {
+        "default": "ami-3760b040"
+      },
+      "us-west-2": {
+        "default": "ami-bb69128b"
+      },
+      "us-west-1": {
+        "default": "ami-2b2b296e"
+      },
+      "sa-east-1": {
+        "default": "ami-b972dba4"
+      },
+      "ap-southeast-1": {
+        "default": "ami-b082dae2"
+      },
+      "us-gov-west-1": {
+        "default": "ami-e8ab1489"
+      },
+      "us-east-1": {
+        "default": "ami-4c9e4b24"
+      },
+      "ap-southeast-2": {
+        "default": "ami-996402a3"
+      },
+      "ap-northeast-1": {
+        "default": "ami-55c29e54"
+      }
+    },
+    "RegionToAmi": {
+      "eu-central-1": {
+        "stable": "ami-3ae31555"
+      },
+      "eu-west-1": {
+        "stable": "ami-b7cba3c4"
+      },
+      "us-gov-west-1": {
+        "stable": "ami-b712acd6"
+      },
+      "us-west-1": {
+        "stable": "ami-ee57148e"
+      },
+      "us-west-2": {
+        "stable": "ami-dc6ba3bc"
+      },
+      "sa-east-1": {
+        "stable": "ami-61e3750d"
+      },
+      "ap-southeast-1": {
+        "stable": "ami-3120fe52"
+      },
+      "us-east-1": {
+        "stable": "ami-6d138f7a"
+      },
+      "ap-southeast-2": {
+        "stable": "ami-b1291dd2"
+      },
+      "ap-northeast-1": {
+        "stable": "ami-965899f7"
+      }
+    }
+  },
+  "Conditions": {
+    "RegionIsUsEast1": {
+      "Fn::Equals": [
+        {
+          "Ref": "AWS::Region"
+        },
+        "us-east-1"
+      ]
+    },
+    "RegionIsUsGovWest1": {
+      "Fn::Equals": [
+        {
+          "Ref": "AWS::Region"
+        },
+        "us-gov-west-1"
+      ]
+    }
+  },
+  "Outputs": {
+    "ExhibitorS3Bucket": {
+      "Value": {
+        "Ref": "ExhibitorS3Bucket"
+      },
+      "Description": "Exhibitor S3 bucket name"
+    },
+    "PublicSlaveDnsAddress": {
+      "Value": {
+        "Fn::GetAtt": [
+          "PublicSlaveLoadBalancer",
+          "DNSName"
+        ]
+      },
+      "Description": "Public slaves"
+    },
+    "DnsAddress": {
+      "Value": {
+        "Fn::GetAtt": [
+          "ElasticLoadBalancer",
+          "DNSName"
+        ]
+      },
+      "Description": "Mesos Master"
+    }
+  },
+  "Metadata": {
+    "DcosImageCommit": "1b43ff7a0b9124db9439299b789f2e2dc3cc086c",
+    "TemplateGenerationDate": "2016-11-15 18:07:47.173102",
+    "AWS::CloudFormation::Designer": {
+      "d5b2427f-2b9a-4f4b-8c23-048ebed12e67": {
+        "size": {
+          "width": 1050,
+          "height": 960
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [
+          "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218",
+          "88e3d525-46fb-4b89-8384-31128d6806de",
+          "8e56741d-9bf9-4797-9232-44f160a4fbba",
+          "52026ae4-243c-4998-a8b4-5c6f161d4f68",
+          "33a2115a-76e8-4187-acb8-dea920b41268",
+          "4da6ce07-f059-4e52-8654-22e92bfbd005",
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8",
+          "9b179aeb-9cb0-4e25-b3d5-84af58742c0b",
+          "62825da7-6349-43c0-ab3b-65daada471ab",
+          "9189a3bb-2eda-4819-aada-5da61395e962",
+          "0f8e4454-f877-4695-aa84-a760773aaa9c"
+        ]
+      },
+      "cab5ed47-4f4b-4804-9234-c9ee128ff1e2": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 780,
+          "y": 660
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": []
+      },
+      "88e3d525-46fb-4b89-8384-31128d6806de": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 900,
+          "y": 660
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": []
+      },
+      "fd313ee3-6bd1-4df4-8012-f4723ad2c159": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        ]
+      },
+      "8e56741d-9bf9-4797-9232-44f160a4fbba": {
+        "size": {
+          "width": 240,
+          "height": 240
+        },
+        "position": {
+          "x": 780,
+          "y": 150
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [
+          "dbfc2220-a350-4cef-b15d-0c4bb6089eb3"
+        ]
+      },
+      "0c455641-9cd7-4986-b538-0edd4695595f": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 300,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "dcea6d48-51e2-47e7-adbe-e312628000e5": {
+        "source": {
+          "id": "cab5ed47-4f4b-4804-9234-c9ee128ff1e2"
+        },
+        "target": {
+          "id": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        }
+      },
+      "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 420,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "d44cb758-3292-4763-a962-7f1ea3c68d96": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "isrelatedto": [
+          "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c"
+        ]
+      },
+      "256ebd61-bd7a-49b2-8820-3f0fd6b5559c": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 660,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "d44cb758-3292-4763-a962-7f1ea3c68d96"
+        ]
+      },
+      "52026ae4-243c-4998-a8b4-5c6f161d4f68": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 90,
+          "y": 750
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": []
+      },
+      "4112bdf8-fe6a-458f-a9c3-8ee8e81bf936": {
+        "source": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        },
+        "target": {
+          "id": "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        }
+      },
+      "b515b1cb-182a-49d9-b397-2b28998dd4dc": {
+        "source": {
+          "id": "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        },
+        "target": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        }
+      },
+      "bff9717d-8f5d-4c97-b172-ab099c011fdf": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 780,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "isassociatedwith": [
+          "0c455641-9cd7-4986-b538-0edd4695595f"
+        ]
+      },
+      "33a2115a-76e8-4187-acb8-dea920b41268": {
+        "size": {
+          "width": 240,
+          "height": 240
+        },
+        "position": {
+          "x": 480,
+          "y": 450
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [
+          "d6f549af-a2d3-4e97-bd62-23a0464bb518"
+        ],
+        "dependson": [
+          "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        ]
+      },
+      "baffbc7e-9a8c-43ad-81e5-c461e434dc2f": {
+        "source": {
+          "id": "88e3d525-46fb-4b89-8384-31128d6806de"
+        },
+        "target": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        }
+      },
+      "4da6ce07-f059-4e52-8654-22e92bfbd005": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 210,
+          "y": 750
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": []
+      },
+      "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8": {
+        "size": {
+          "width": 240,
+          "height": 240
+        },
+        "position": {
+          "x": 480,
+          "y": 150
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [
+          "797f4a42-5c69-4d82-8942-9ff734b3fb82"
+        ],
+        "dependson": [
+          "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        ]
+      },
+      "7398ff9c-0ee5-4baf-9378-a511efee6387": {
+        "source": {
+          "id": "33a2115a-76e8-4187-acb8-dea920b41268"
+        },
+        "target": {
+          "id": "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        }
+      },
+      "9b179aeb-9cb0-4e25-b3d5-84af58742c0b": {
+        "size": {
+          "width": 330,
+          "height": 240
+        },
+        "position": {
+          "x": 90,
+          "y": 450
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [
+          "cc0e4bb4-01f3-447e-bb7a-f8710b563375",
+          "573ab7a3-43fe-4ed8-b089-b56525f05b9d"
+        ]
+      },
+      "cc0e4bb4-01f3-447e-bb7a-f8710b563375": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 120,
+          "y": 510
+        },
+        "z": 3,
+        "parent": "9b179aeb-9cb0-4e25-b3d5-84af58742c0b",
+        "embeds": []
+      },
+      "573ab7a3-43fe-4ed8-b089-b56525f05b9d": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 240,
+          "y": 510
+        },
+        "z": 3,
+        "parent": "9b179aeb-9cb0-4e25-b3d5-84af58742c0b",
+        "embeds": []
+      },
+      "62825da7-6349-43c0-ab3b-65daada471ab": {
+        "size": {
+          "width": 330,
+          "height": 240
+        },
+        "position": {
+          "x": 90,
+          "y": 150
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [
+          "af335664-a760-45fe-84f4-1946b6e394bf",
+          "5164d08a-5151-4e9b-9a99-171c457b1096"
+        ]
+      },
+      "af335664-a760-45fe-84f4-1946b6e394bf": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 120,
+          "y": 210
+        },
+        "z": 3,
+        "parent": "62825da7-6349-43c0-ab3b-65daada471ab",
+        "embeds": []
+      },
+      "f54e7542-cfe6-4668-b9d6-7fe6173c93c8": {
+        "source": {
+          "id": "62825da7-6349-43c0-ab3b-65daada471ab"
+        },
+        "target": {
+          "id": "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        }
+      },
+      "9189a3bb-2eda-4819-aada-5da61395e962": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 330,
+          "y": 750
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [],
+        "isrelatedto": [
+          "88e3d525-46fb-4b89-8384-31128d6806de"
+        ]
+      },
+      "c63f4cb0-df20-480a-8acd-557e7d47aeb4": {
+        "source": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        },
+        "target": {
+          "id": "9189a3bb-2eda-4819-aada-5da61395e962"
+        }
+      },
+      "bc999319-619a-436f-b136-1a4e78f1a19f": {
+        "source": {
+          "id": "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        },
+        "target": {
+          "id": "9189a3bb-2eda-4819-aada-5da61395e962"
+        }
+      },
+      "57e7164b-dba6-4709-b670-2d356a398165": {
+        "source": {
+          "id": "9189a3bb-2eda-4819-aada-5da61395e962"
+        },
+        "target": {
+          "id": "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        }
+      },
+      "795f89fd-4b5e-4413-acbe-1fde7101680e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 900,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        ],
+        "ismemberof": [
+          "88e3d525-46fb-4b89-8384-31128d6806de",
+          "4da6ce07-f059-4e52-8654-22e92bfbd005",
+          "52026ae4-243c-4998-a8b4-5c6f161d4f68",
+          "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218",
+          "9189a3bb-2eda-4819-aada-5da61395e962"
+        ]
+      },
+      "7b73d352-5bae-471f-9816-612b45f30448": {
+        "source": {
+          "id": "9189a3bb-2eda-4819-aada-5da61395e962"
+        },
+        "target": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        }
+      },
+      "eda0ab64-70dd-4997-a0a8-31e2fd60bd87": {
+        "source": {
+          "id": "fd313ee3-6bd1-4df4-8012-f4723ad2c159"
+        },
+        "target": {
+          "id": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        }
+      },
+      "d7aac628-f6ce-4b7f-969a-ef6a21abd09a": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1020,
+          "y": 1110
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        ],
+        "ismemberof": [
+          "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "d6f549af-a2d3-4e97-bd62-23a0464bb518": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 510,
+          "y": 510
+        },
+        "z": 3,
+        "parent": "33a2115a-76e8-4187-acb8-dea920b41268",
+        "embeds": [],
+        "references": [
+          "fd313ee3-6bd1-4df4-8012-f4723ad2c159"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "797f4a42-5c69-4d82-8942-9ff734b3fb82": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 510,
+          "y": 210
+        },
+        "z": 3,
+        "parent": "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8",
+        "embeds": [],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ],
+        "isrelatedto": [
+          "52026ae4-243c-4998-a8b4-5c6f161d4f68",
+          "9189a3bb-2eda-4819-aada-5da61395e962",
+          "4da6ce07-f059-4e52-8654-22e92bfbd005"
+        ]
+      },
+      "c56c2962-e923-48c0-9687-aee8014c9528": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        ],
+        "ismemberof": [
+          "88e3d525-46fb-4b89-8384-31128d6806de",
+          "4da6ce07-f059-4e52-8654-22e92bfbd005"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "069de8be-dfa4-43ff-b2bd-04dbba3e66db": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 210
+        },
+        "z": 1,
+        "embeds": [],
+        "ismemberof": [
+          "9189a3bb-2eda-4819-aada-5da61395e962",
+          "4da6ce07-f059-4e52-8654-22e92bfbd005"
+        ],
+        "isrelatedto": [
+          "795f89fd-4b5e-4413-acbe-1fde7101680e",
+          "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c",
+          "d44cb758-3292-4763-a962-7f1ea3c68d96",
+          "0c455641-9cd7-4986-b538-0edd4695595f",
+          "c56c2962-e923-48c0-9687-aee8014c9528",
+          "256ebd61-bd7a-49b2-8820-3f0fd6b5559c"
+        ]
+      },
+      "0d65cfc7-54a5-4eec-86d3-5d2492d226ad": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 330
+        },
+        "z": 1,
+        "embeds": [],
+        "ismemberof": [
+          "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        ],
+        "isrelatedto": [
+          "795f89fd-4b5e-4413-acbe-1fde7101680e",
+          "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c",
+          "d44cb758-3292-4763-a962-7f1ea3c68d96",
+          "0c455641-9cd7-4986-b538-0edd4695595f",
+          "c56c2962-e923-48c0-9687-aee8014c9528",
+          "bff9717d-8f5d-4c97-b172-ab099c011fdf"
+        ]
+      },
+      "6a519ddf-75c5-430e-8a90-0c25e8ae7c69": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 450
+        },
+        "z": 1,
+        "embeds": [],
+        "ismemberof": [
+          "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        ],
+        "isrelatedto": [
+          "795f89fd-4b5e-4413-acbe-1fde7101680e",
+          "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c",
+          "d44cb758-3292-4763-a962-7f1ea3c68d96",
+          "0c455641-9cd7-4986-b538-0edd4695595f",
+          "c56c2962-e923-48c0-9687-aee8014c9528",
+          "bff9717d-8f5d-4c97-b172-ab099c011fdf"
+        ]
+      },
+      "b9812ede-5e7b-4835-bf2d-f39dad166240": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 570
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8",
+          "d7aac628-f6ce-4b7f-969a-ef6a21abd09a"
+        ],
+        "isassociatedwith": [
+          "6a519ddf-75c5-430e-8a90-0c25e8ae7c69"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "0cb5c123-6bd7-45dd-a4ae-7572a637179c": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 690
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8",
+          "c56c2962-e923-48c0-9687-aee8014c9528",
+          "795f89fd-4b5e-4413-acbe-1fde7101680e"
+        ],
+        "isassociatedwith": [
+          "069de8be-dfa4-43ff-b2bd-04dbba3e66db"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "dbfc2220-a350-4cef-b15d-0c4bb6089eb3": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 810,
+          "y": 210
+        },
+        "z": 3,
+        "parent": "8e56741d-9bf9-4797-9232-44f160a4fbba",
+        "embeds": [],
+        "references": [
+          "797f4a42-5c69-4d82-8942-9ff734b3fb82"
+        ]
+      },
+      "0f8e4454-f877-4695-aa84-a760773aaa9c": {
+        "size": {
+          "width": 150,
+          "height": 150
+        },
+        "position": {
+          "x": 780,
+          "y": 450
+        },
+        "z": 2,
+        "parent": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67",
+        "embeds": [],
+        "dependson": [
+          "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        ]
+      },
+      "af1e9101-ae5a-496f-b84a-f14f181a656c": {
+        "source": {
+          "id": "9b179aeb-9cb0-4e25-b3d5-84af58742c0b"
+        },
+        "target": {
+          "id": "0f8e4454-f877-4695-aa84-a760773aaa9c"
+        }
+      },
+      "b894df83-46b1-45e2-bbae-297330d87d0e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 1170,
+          "y": 810
+        },
+        "z": 1,
+        "embeds": [],
+        "isconnectedto": [
+          "0f8e4454-f877-4695-aa84-a760773aaa9c"
+        ],
+        "isassociatedwith": [
+          "0d65cfc7-54a5-4eec-86d3-5d2492d226ad"
+        ],
+        "dependson": [
+          "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        ]
+      },
+      "5164d08a-5151-4e9b-9a99-171c457b1096": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 240,
+          "y": 210
+        },
+        "z": 3,
+        "parent": "62825da7-6349-43c0-ab3b-65daada471ab",
+        "embeds": []
+      },
+      "0bf3a112-20df-405b-b5a5-be693ad04d21": {
+        "source": {
+          "id": "8e56741d-9bf9-4797-9232-44f160a4fbba"
+        },
+        "target": {
+          "id": "0f8e4454-f877-4695-aa84-a760773aaa9c"
+        }
+      }
+    }
+  },
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "DC/OS AWS CloudFormation Template",
+  "Resources": {
+    "PrivateSubnetRouteTableAssociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PrivateSubnet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0bf3a112-20df-405b-b5a5-be693ad04d21"
+        }
+      }
+    },
+    "PublicSlaveIngressThree": {
+      "Properties": {
+        "IpProtocol": "tcp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "5052",
+        "ToPort": "32000"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "OutboundNetworkAclEntry": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "5164d08a-5151-4e9b-9a99-171c457b1096"
+        }
+      }
+    },
+    "PrivateSubnet": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "PrivateSubnetRange",
+            "default"
+          ]
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Private",
+            "Key": "Network"
+          }
+        ]
+      },
+      "DependsOn": "Vpc",
+      "Type": "AWS::EC2::Subnet",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0f8e4454-f877-4695-aa84-a760773aaa9c"
+        }
+      }
+    },
+    "PrivateRoute": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PrivateRouteTable"
+        },
+        "InstanceId": {
+          "Ref": "NATInstance"
+        }
+      },
+      "Type": "AWS::EC2::Route",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "dbfc2220-a350-4cef-b15d-0c4bb6089eb3"
+        }
+      }
+    },
+    "ElasticLoadBalancer": {
+      "Properties": {
+        "HealthCheck": {
+          "Target": "TCP:5050",
+          "UnhealthyThreshold": "2",
+          "Timeout": "5",
+          "Interval": "30",
+          "HealthyThreshold": "2"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "LbSecurityGroup"
+          },
+          {
+            "Ref": "AdminSecurityGroup"
+          }
+        ],
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "80"
+          },
+          {
+            "LoadBalancerPort": "443",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "443"
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "PublicSubnet"
+          }
+        ]
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "c56c2962-e923-48c0-9687-aee8014c9528"
+        }
+      }
+    },
+    "PublicSlaveServerGroup": {
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": {
+            "Fn::FindInMap": [
+              "Parameters",
+              "StackCreationTimeout",
+              "default"
+            ]
+          },
+          "Count": {
+            "Ref": "PublicSlaveInstanceCount"
+          }
+        }
+      },
+      "Properties": {
+        "DesiredCapacity": {
+          "Ref": "PublicSlaveInstanceCount"
+        },
+        "LoadBalancerNames": [
+          {
+            "Ref": "PublicSlaveLoadBalancer"
+          }
+        ],
+        "MinSize": {
+          "Ref": "PublicSlaveInstanceCount"
+        },
+        "MaxSize": {
+          "Ref": "PublicSlaveInstanceCount"
+        },
+        "AvailabilityZones": [
+          {
+            "Fn::GetAtt": [
+              "PublicSubnet",
+              "AvailabilityZone"
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Value": "mesos-slave",
+            "Key": "role",
+            "PropagateAtLaunch": "true"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "PublicSlaveLaunchConfig"
+        },
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PublicSubnet"
+          }
+        ]
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b9812ede-5e7b-4835-bf2d-f39dad166240"
+        }
+      }
+    },
+    "PublicSlaveIngressFour": {
+      "Properties": {
+        "IpProtocol": "udp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "21"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "PublicSlaveIngressOne": {
+      "Properties": {
+        "IpProtocol": "tcp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "21"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "GatewayToInternet": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      },
+      "DependsOn": "InternetGateway",
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "eda0ab64-70dd-4997-a0a8-31e2fd60bd87"
+        }
+      }
+    },
+    "NATInstance": {
+      "Properties": {
+        "NetworkInterfaces": [
+          {
+            "DeleteOnTermination": "true",
+            "DeviceIndex": "0",
+            "SubnetId": {
+              "Ref": "PublicSubnet"
+            },
+            "AssociatePublicIpAddress": "true",
+            "GroupSet": [
+              {
+                "Ref": "SlaveSecurityGroup"
+              },
+              {
+                "Ref": "MasterSecurityGroup"
+              },
+              {
+                "Ref": "AdminSecurityGroup"
+              }
+            ]
+          }
+        ],
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "InstanceType": "m3.medium",
+        "ImageId": {
+          "Fn::FindInMap": [
+            "NATAmi",
+            {
+              "Ref": "AWS::Region"
+            },
+            "default"
+          ]
+        },
+        "SourceDestCheck": "false"
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::EC2::Instance",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "797f4a42-5c69-4d82-8942-9ff734b3fb82"
+        }
+      }
+    },
+    "MasterServerGroup": {
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": {
+            "Fn::FindInMap": [
+              "Parameters",
+              "StackCreationTimeout",
+              "default"
+            ]
+          },
+          "Count": 3
+        }
+      },
+      "Properties": {
+        "DesiredCapacity": 3,
+        "LoadBalancerNames": [
+          {
+            "Ref": "ElasticLoadBalancer"
+          },
+          {
+            "Ref": "InternalMasterLoadBalancer"
+          }
+        ],
+        "MinSize": 3,
+        "MaxSize": 3,
+        "AvailabilityZones": [
+          {
+            "Fn::GetAtt": [
+              "PublicSubnet",
+              "AvailabilityZone"
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Value": "mesos-master",
+            "Key": "role",
+            "PropagateAtLaunch": "true"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "MasterLaunchConfig"
+        },
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PublicSubnet"
+          }
+        ]
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0cb5c123-6bd7-45dd-a4ae-7572a637179c"
+        }
+      }
+    },
+    "SlaveToMasterIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7b73d352-5bae-471f-9816-612b45f30448"
+        }
+      }
+    },
+    "PublicSlaveIngressFive": {
+      "Properties": {
+        "IpProtocol": "udp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "23",
+        "ToPort": "5050"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "PublicSlaveLaunchConfig": {
+      "Properties": {
+        "EbsOptimized": "true",
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "PublicSlaveSecurityGroup"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "RegionToAmi",
+            {
+              "Ref": "AWS::Region"
+            },
+            "stable"
+          ]
+        },
+        "AssociatePublicIpAddress": "true",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\n",
+                "\"coreos\":\n",
+                "  \"units\":\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Formats the /var/lib ephemeral drive\n",
+                "      Before=var-lib.mount dbus.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      RemainAfterExit=yes\n",
+                "      ExecStart=/bin/bash -c \"(blkid -t TYPE=ext4 | grep xvdb) || (/usr/sbin/mkfs.ext4 -F /dev/xvdb)\"\n",
+                "    \"name\": |-\n",
+                "      format-var-lib-ephemeral.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Mount /var/lib\n",
+                "      Before=dbus.service\n",
+                "      [Mount]\n",
+                "      What=/dev/xvdb\n",
+                "      Where=/var/lib\n",
+                "      Type=ext4\n",
+                "    \"name\": |-\n",
+                "      var-lib.mount\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      etcd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      update-engine.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      locksmithd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"name\": |-\n",
+                "      systemd-resolved.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      systemd-journald.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      docker.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Before=dcos.target\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /etc/profile.d\n",
+                "      ExecStart=/usr/bin/ln -sf /opt/mesosphere/environment.export /etc/profile.d/dcos.sh\n",
+                "    \"name\": |-\n",
+                "      dcos-link-env.service\n",
+                "  - \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Download DC/OS to this host.\n",
+                "      After=network-online.target\n",
+                "      Wants=network-online.target\n",
+                "      ConditionPathExists=!/opt/mesosphere/\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/curl --keepalive-time 2 -fLsSv --retry 20 -Y 100000 -y 60 -o /tmp/bootstrap.tar.xz https://downloads.dcos.io/dcos/stable/bootstrap/e73ba2b1cd17795e4dcb3d6647d11a29b9c35084.bootstrap.tar.xz\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /opt/mesosphere\n",
+                "      ExecStart=/usr/bin/tar -axf /tmp/bootstrap.tar.xz -C /opt/mesosphere\n",
+                "      ExecStartPost=-/usr/bin/rm -f /tmp/bootstrap.tar.xz\n",
+                "    \"name\": |-\n",
+                "      dcos-download.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Specialize DC/OS for this host.\n",
+                "      Requires=dcos-download.service\n",
+                "      After=dcos-download.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd\n",
+                "      [Install]\n",
+                "      WantedBy=multi-user.target\n",
+                "    \"enable\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      dcos-setup.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |-\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Signal CloudFormation Success\n",
+                "      ConditionPathExists=!/var/lib/dcos-cfn-signal\n",
+                "      [Service]\n",
+                "      Type=simple\n",
+                "      Restart=on-failure\n",
+                "      StartLimitInterval=0\n",
+                "      RestartSec=15s\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      EnvironmentFile=/opt/mesosphere/etc/cfn_signal_metadata\n",
+                "      Environment=\"AWS_CFN_SIGNAL_THIS_RESOURCE=PublicSlaveServerGroup\"\n",
+                "      ExecStartPre=/bin/ping -c1 leader.mesos\n",
+                "      ExecStartPre=/opt/mesosphere/bin/cfn-signal\n",
+                "      ExecStart=/usr/bin/touch /var/lib/dcos-cfn-signal\n",
+                "    \"name\": |-\n",
+                "      dcos-cfn-signal.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  \"update\":\n",
+                "    \"reboot-strategy\": |-\n",
+                "      off\n",
+                "\"write_files\":\n",
+                "- \"content\": |\n",
+                "    https://downloads.dcos.io/dcos/stable\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/repository-url\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [\"dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\", \"dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\"]\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/cluster-packages.json\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [Journal]\n",
+                "    MaxLevelConsole=warning\n",
+                "    RateLimitInterval=1s\n",
+                "    RateLimitBurst=20000\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/systemd/journald.conf.d/dcos.conf\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    rexray:\n",
+                "      loglevel: info\n",
+                "      modules:\n",
+                "        default-admin:\n",
+                "          host: tcp://127.0.0.1:61003\n",
+                "      storageDrivers:\n",
+                "      - ec2\n",
+                "      volume:\n",
+                "        unmount:\n",
+                "          ignoreusedcount: true\n",
+                "  \"path\": |-\n",
+                "    /etc/rexray/config.yml\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    MESOS_CLUSTER=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-master-provider\n",
+                "- \"content\": |\n",
+                "    ADMINROUTER_ACTIVATE_AUTH_MODULE=",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/adminrouter.env\n",
+                "- \"content\": |\n",
+                "    MASTER_SOURCE=exhibitor_uri\n",
+                "    EXHIBITOR_URI=http://",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                ":8181/exhibitor/v1/cluster/status",
+                "\n",
+                "    EXHIBITOR_ADDRESS=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    RESOLVERS=169.254.169.253\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/dns_config\n",
+                "- \"content\": |\n",
+                "    EXHIBITOR_BACKEND=AWS_S3\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_S3_BUCKET=",
+                {
+                  "Ref": "ExhibitorS3Bucket"
+                },
+                "",
+                "\n",
+                "    AWS_S3_PREFIX=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/exhibitor\n",
+                "- \"content\": |\n",
+                "    {\"uiConfiguration\":{\"plugins\":{\"banner\":{\"enabled\":false,\"backgroundColor\":\"#1E232F\",\"foregroundColor\":\"#FFFFFF\",\"headerTitle\":null,\"headerContent\":null,\"footerContent\":null,\"imagePath\":null,\"dismissible\":null},\"branding\":{\"enabled\":false},\"external-links\": {\"enabled\": false},\n",
+                "\n",
+                "    \"authentication\":{\"enabled\":false},\n",
+                "\n",
+                "    \"oauth\":{\"enabled\":",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                ",\"authHost\":\"https://dcos.auth0.com\"},",
+                "\n",
+                "\n",
+                "\n",
+                "    \"tracking\":{\"enabled\":true}}}}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/ui-config.json\n",
+                "- \"content\": |\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_ID=",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_NAME=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_MASTER_ROLE_NAME=",
+                {
+                  "Ref": "MasterRole"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_SLAVE_ROLE_NAME=",
+                {
+                  "Ref": "SlaveRole"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/cfn_signal_metadata\n",
+                "- \"content\": |\n",
+                "    INTERNAL_MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "ElasticLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/aws_dnsnames\n",
+                "- \"content\": |-\n",
+                "    {}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/pkginfo.json\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/slave_public\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/aws\n"
+              ]
+            ]
+          }
+        },
+        "BlockDeviceMappings": [
+          {
+            "VirtualName": "ephemeral0",
+            "DeviceName": "/dev/sdb"
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "PublicSlaveInstanceType",
+            "default"
+          ]
+        },
+        "IamInstanceProfile": {
+          "Ref": "SlaveInstanceProfile"
+        }
+      },
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6a519ddf-75c5-430e-8a90-0c25e8ae7c69"
+        }
+      }
+    },
+    "MasterSecurityGroup": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Mesos Masters",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "5050",
+            "ToPort": "5050"
+          },
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "80",
+            "ToPort": "80"
+          },
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "443",
+            "ToPort": "443"
+          },
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "8080",
+            "ToPort": "8080"
+          },
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "8181",
+            "ToPort": "8181"
+          },
+          {
+            "IpProtocol": "tcp",
+            "SourceSecurityGroupId": {
+              "Ref": "LbSecurityGroup"
+            },
+            "FromPort": "2181",
+            "ToPort": "2181"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "9189a3bb-2eda-4819-aada-5da61395e962"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation": {
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "f54e7542-cfe6-4668-b9d6-7fe6173c93c8"
+        }
+      }
+    },
+    "InternalMasterLoadBalancer": {
+      "Properties": {
+        "HealthCheck": {
+          "Target": "TCP:5050",
+          "UnhealthyThreshold": "2",
+          "Timeout": "5",
+          "Interval": "30",
+          "HealthyThreshold": "2"
+        },
+        "Scheme": "internal",
+        "SecurityGroups": [
+          {
+            "Ref": "LbSecurityGroup"
+          },
+          {
+            "Ref": "AdminSecurityGroup"
+          },
+          {
+            "Ref": "SlaveSecurityGroup"
+          },
+          {
+            "Ref": "PublicSlaveSecurityGroup"
+          },
+          {
+            "Ref": "MasterSecurityGroup"
+          }
+        ],
+        "Listeners": [
+          {
+            "LoadBalancerPort": "5050",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP",
+            "InstancePort": "5050"
+          },
+          {
+            "LoadBalancerPort": "2181",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "2181"
+          },
+          {
+            "LoadBalancerPort": "8181",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP",
+            "InstancePort": "8181"
+          },
+          {
+            "LoadBalancerPort": "80",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "80"
+          },
+          {
+            "LoadBalancerPort": "443",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "443"
+          },
+          {
+            "LoadBalancerPort": "8080",
+            "Protocol": "HTTP",
+            "InstanceProtocol": "HTTP",
+            "InstancePort": "8080"
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "PublicSubnet"
+          }
+        ]
+      },
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "795f89fd-4b5e-4413-acbe-1fde7101680e"
+        }
+      }
+    },
+    "PublicSlaveToMasterIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "57e7164b-dba6-4709-b670-2d356a398165"
+        }
+      }
+    },
+    "SlaveServerGroup": {
+      "CreationPolicy": {
+        "ResourceSignal": {
+          "Timeout": {
+            "Fn::FindInMap": [
+              "Parameters",
+              "StackCreationTimeout",
+              "default"
+            ]
+          },
+          "Count": {
+            "Ref": "SlaveInstanceCount"
+          }
+        }
+      },
+      "Properties": {
+        "DesiredCapacity": {
+          "Ref": "SlaveInstanceCount"
+        },
+        "MinSize": {
+          "Ref": "SlaveInstanceCount"
+        },
+        "MaxSize": {
+          "Ref": "SlaveInstanceCount"
+        },
+        "AvailabilityZones": [
+          {
+            "Fn::GetAtt": [
+              "PrivateSubnet",
+              "AvailabilityZone"
+            ]
+          }
+        ],
+        "Tags": [
+          {
+            "Value": "mesos-slave",
+            "Key": "role",
+            "PropagateAtLaunch": "true"
+          }
+        ],
+        "LaunchConfigurationName": {
+          "Ref": "SlaveLaunchConfig"
+        },
+        "VPCZoneIdentifier": [
+          {
+            "Ref": "PrivateSubnet"
+          }
+        ]
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::AutoScaling::AutoScalingGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b894df83-46b1-45e2-bbae-297330d87d0e"
+        }
+      }
+    },
+    "PublicNetworkAcl": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::NetworkAcl",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "62825da7-6349-43c0-ab3b-65daada471ab"
+        }
+      }
+    },
+    "PrivateNetworkAcl": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::NetworkAcl",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "9b179aeb-9cb0-4e25-b3d5-84af58742c0b"
+        }
+      }
+    },
+    "PrivateSubnetNetworkAclAssociation": {
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PrivateSubnet"
+        },
+        "NetworkAclId": {
+          "Ref": "PrivateNetworkAcl"
+        }
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "af1e9101-ae5a-496f-b84a-f14f181a656c"
+        }
+      }
+    },
+    "InboundNetworkAclEntry": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "PublicNetworkAcl"
+        },
+        "Egress": "false",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "af335664-a760-45fe-84f4-1946b6e394bf"
+        }
+      }
+    },
+    "PublicSubnet": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "PublicSubnetRange",
+            "default"
+          ]
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "DependsOn": "Vpc",
+      "Type": "AWS::EC2::Subnet",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "57daeaa5-0b4c-483f-aac5-4e5f3bdc25b8"
+        }
+      }
+    },
+    "AdminSecurityGroup": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Enable admin access to servers",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": {
+              "Ref": "AdminLocation"
+            },
+            "FromPort": "22",
+            "ToPort": "22"
+          },
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": {
+              "Ref": "AdminLocation"
+            },
+            "FromPort": "80",
+            "ToPort": "80"
+          },
+          {
+            "IpProtocol": "tcp",
+            "CidrIp": {
+              "Ref": "AdminLocation"
+            },
+            "FromPort": "443",
+            "ToPort": "443"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4da6ce07-f059-4e52-8654-22e92bfbd005"
+        }
+      }
+    },
+    "PublicRoute": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::EC2::Route",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d6f549af-a2d3-4e97-bd62-23a0464bb518"
+        }
+      }
+    },
+    "SlaveToMasterLBIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "IpProtocol": "tcp",
+        "GroupId": {
+          "Ref": "LbSecurityGroup"
+        },
+        "FromPort": "2181",
+        "ToPort": "2181"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "baffbc7e-9a8c-43ad-81e5-c461e434dc2f"
+        }
+      }
+    },
+    "SlaveToSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "PublicRouteTable": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "DependsOn": "Vpc",
+      "Type": "AWS::EC2::RouteTable",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "33a2115a-76e8-4187-acb8-dea920b41268"
+        }
+      }
+    },
+    "SlaveInstanceProfile": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "SlaveRole"
+          }
+        ],
+        "Path": "/"
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "bff9717d-8f5d-4c97-b172-ab099c011fdf"
+        }
+      }
+    },
+    "PublicSlaveToPublicSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "PublicSlaveIngressSix": {
+      "Properties": {
+        "IpProtocol": "udp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "5052",
+        "ToPort": "32000"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "SlaveSecurityGroup": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Mesos Slaves"
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "52026ae4-243c-4998-a8b4-5c6f161d4f68"
+        }
+      }
+    },
+    "ExhibitorS3Bucket": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::S3::Bucket",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "bfbf5330-8679-42a0-8f75-ba4a51f5ef2c"
+        }
+      }
+    },
+    "VPCDHCPOptionsAssociation": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "DhcpOptionsId": {
+          "Ref": "DHCPOptions"
+        }
+      },
+      "DependsOn": "Vpc",
+      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "dcea6d48-51e2-47e7-adbe-e312628000e5"
+        }
+      }
+    },
+    "SlaveRole": {
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyName": "Slaves",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:*"
+                  ],
+                  "Resource": [
+                    {
+                      "Ref": "AWS::StackId"
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Ref": "AWS::StackId"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:CreateTags",
+                    "ec2:DescribeInstances",
+                    "ec2:CreateVolume",
+                    "ec2:DeleteVolume",
+                    "ec2:AttachVolume",
+                    "ec2:DetachVolume",
+                    "ec2:DescribeVolumes",
+                    "ec2:DescribeVolumeStatus",
+                    "ec2:DescribeVolumeAttribute",
+                    "ec2:CreateSnapshot",
+                    "ec2:CopySnapshot",
+                    "ec2:DeleteSnapshot",
+                    "ec2:DescribeSnapshots",
+                    "ec2:DescribeSnapshotAttribute",
+                    "autoscaling:DescribeAutoScalingGroups",
+                    "cloudwatch:PutMetricData"
+                  ],
+                  "Resource": "*"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          }
+        ],
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Type": "AWS::IAM::Role",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0c455641-9cd7-4986-b538-0edd4695595f"
+        }
+      }
+    },
+    "MasterRole": {
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyName": "root",
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "s3:AbortMultipartUpload",
+                    "s3:DeleteObject",
+                    "s3:GetBucketAcl",
+                    "s3:GetBucketPolicy",
+                    "s3:GetObject",
+                    "s3:GetObjectAcl",
+                    "s3:ListBucket",
+                    "s3:ListBucketMultipartUploads",
+                    "s3:ListMultipartUploadParts",
+                    "s3:PutObject",
+                    "s3:PutObjectAcl"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Fn::If": [
+                              "RegionIsUsGovWest1",
+                              "arn:aws-us-gov:s3:::",
+                              "arn:aws:s3:::"
+                            ]
+                          },
+                          {
+                            "Ref": "ExhibitorS3Bucket"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Fn::If": [
+                              "RegionIsUsGovWest1",
+                              "arn:aws-us-gov:s3:::",
+                              "arn:aws:s3:::"
+                            ]
+                          },
+                          {
+                            "Ref": "ExhibitorS3Bucket"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "cloudformation:*"
+                  ],
+                  "Resource": [
+                    {
+                      "Ref": "AWS::StackId"
+                    },
+                    {
+                      "Fn::Join": [
+                        "",
+                        [
+                          {
+                            "Ref": "AWS::StackId"
+                          },
+                          "/*"
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:DescribeKeyPairs",
+                    "ec2:DescribeSubnets",
+                    "autoscaling:DescribeLaunchConfigurations",
+                    "autoscaling:UpdateAutoScalingGroup",
+                    "autoscaling:DescribeAutoScalingGroups",
+                    "autoscaling:DescribeScalingActivities",
+                    "elasticloadbalancing:DescribeLoadBalancers"
+                  ],
+                  "Resource": "*"
+                }
+              ],
+              "Version": "2012-10-17"
+            }
+          }
+        ],
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "Path": "/"
+      },
+      "Type": "AWS::IAM::Role",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d44cb758-3292-4763-a962-7f1ea3c68d96"
+        }
+      }
+    },
+    "MasterInstanceProfile": {
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "MasterRole"
+          }
+        ],
+        "Path": "/"
+      },
+      "Type": "AWS::IAM::InstanceProfile",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "256ebd61-bd7a-49b2-8820-3f0fd6b5559c"
+        }
+      }
+    },
+    "MasterToPublicSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "bc999319-619a-436f-b136-1a4e78f1a19f"
+        }
+      }
+    },
+    "PrivateRouteTable": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "Type": "AWS::EC2::RouteTable",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "8e56741d-9bf9-4797-9232-44f160a4fbba"
+        }
+      }
+    },
+    "PublicSlaveLoadBalancer": {
+      "Properties": {
+        "HealthCheck": {
+          "Target": "HTTP:9090/_haproxy_health_check",
+          "UnhealthyThreshold": "2",
+          "Timeout": "2",
+          "Interval": "5",
+          "HealthyThreshold": "2"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "PublicSlaveSecurityGroup"
+          }
+        ],
+        "Listeners": [
+          {
+            "LoadBalancerPort": "80",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "80"
+          },
+          {
+            "LoadBalancerPort": "443",
+            "Protocol": "TCP",
+            "InstanceProtocol": "TCP",
+            "InstancePort": "443"
+          }
+        ],
+        "Subnets": [
+          {
+            "Ref": "PublicSubnet"
+          }
+        ]
+      },
+      "DependsOn": "GatewayToInternet",
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d7aac628-f6ce-4b7f-969a-ef6a21abd09a"
+        }
+      }
+    },
+    "InternetGateway": {
+      "Properties": {
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ]
+      },
+      "DependsOn": "Vpc",
+      "Type": "AWS::EC2::InternetGateway",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "fd313ee3-6bd1-4df4-8012-f4723ad2c159"
+        }
+      }
+    },
+    "PublicSubnetRouteTableAssociation": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        }
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "7398ff9c-0ee5-4baf-9378-a511efee6387"
+        }
+      }
+    },
+    "PrivateOutboundNetworkAclEntry": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "PrivateNetworkAcl"
+        },
+        "Egress": "true",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "573ab7a3-43fe-4ed8-b089-b56525f05b9d"
+        }
+      }
+    },
+    "MasterToMasterIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "LbSecurityGroup": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Mesos Master LB"
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "88e3d525-46fb-4b89-8384-31128d6806de"
+        }
+      }
+    },
+    "PublicSlaveIngressTwo": {
+      "Properties": {
+        "IpProtocol": "tcp",
+        "CidrIp": "0.0.0.0/0",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "23",
+        "ToPort": "5050"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress"
+    },
+    "PrivateInboundNetworkAclEntry": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "RuleNumber": "100",
+        "NetworkAclId": {
+          "Ref": "PrivateNetworkAcl"
+        },
+        "Egress": "false",
+        "Protocol": "-1",
+        "RuleAction": "allow",
+        "PortRange": {
+          "From": "0",
+          "To": "65535"
+        }
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "cc0e4bb4-01f3-447e-bb7a-f8710b563375"
+        }
+      }
+    },
+    "SlaveLaunchConfig": {
+      "Properties": {
+        "EbsOptimized": "true",
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "SlaveSecurityGroup"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "RegionToAmi",
+            {
+              "Ref": "AWS::Region"
+            },
+            "stable"
+          ]
+        },
+        "AssociatePublicIpAddress": "false",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\n",
+                "\"coreos\":\n",
+                "  \"units\":\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Formats the /var/lib ephemeral drive\n",
+                "      Before=var-lib.mount dbus.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      RemainAfterExit=yes\n",
+                "      ExecStart=/bin/bash -c \"(blkid -t TYPE=ext4 | grep xvdb) || (/usr/sbin/mkfs.ext4 -F /dev/xvdb)\"\n",
+                "    \"name\": |-\n",
+                "      format-var-lib-ephemeral.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Mount /var/lib\n",
+                "      Before=dbus.service\n",
+                "      [Mount]\n",
+                "      What=/dev/xvdb\n",
+                "      Where=/var/lib\n",
+                "      Type=ext4\n",
+                "    \"name\": |-\n",
+                "      var-lib.mount\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      etcd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      update-engine.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      locksmithd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"name\": |-\n",
+                "      systemd-resolved.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      systemd-journald.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      docker.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Before=dcos.target\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /etc/profile.d\n",
+                "      ExecStart=/usr/bin/ln -sf /opt/mesosphere/environment.export /etc/profile.d/dcos.sh\n",
+                "    \"name\": |-\n",
+                "      dcos-link-env.service\n",
+                "  - \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Download DC/OS to this host.\n",
+                "      After=network-online.target\n",
+                "      Wants=network-online.target\n",
+                "      ConditionPathExists=!/opt/mesosphere/\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/curl --keepalive-time 2 -fLsSv --retry 20 -Y 100000 -y 60 -o /tmp/bootstrap.tar.xz https://downloads.dcos.io/dcos/stable/bootstrap/e73ba2b1cd17795e4dcb3d6647d11a29b9c35084.bootstrap.tar.xz\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /opt/mesosphere\n",
+                "      ExecStart=/usr/bin/tar -axf /tmp/bootstrap.tar.xz -C /opt/mesosphere\n",
+                "      ExecStartPost=-/usr/bin/rm -f /tmp/bootstrap.tar.xz\n",
+                "    \"name\": |-\n",
+                "      dcos-download.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Specialize DC/OS for this host.\n",
+                "      Requires=dcos-download.service\n",
+                "      After=dcos-download.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd\n",
+                "      [Install]\n",
+                "      WantedBy=multi-user.target\n",
+                "    \"enable\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      dcos-setup.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |-\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Signal CloudFormation Success\n",
+                "      ConditionPathExists=!/var/lib/dcos-cfn-signal\n",
+                "      [Service]\n",
+                "      Type=simple\n",
+                "      Restart=on-failure\n",
+                "      StartLimitInterval=0\n",
+                "      RestartSec=15s\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      EnvironmentFile=/opt/mesosphere/etc/cfn_signal_metadata\n",
+                "      Environment=\"AWS_CFN_SIGNAL_THIS_RESOURCE=SlaveServerGroup\"\n",
+                "      ExecStartPre=/bin/ping -c1 leader.mesos\n",
+                "      ExecStartPre=/opt/mesosphere/bin/cfn-signal\n",
+                "      ExecStart=/usr/bin/touch /var/lib/dcos-cfn-signal\n",
+                "    \"name\": |-\n",
+                "      dcos-cfn-signal.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  \"update\":\n",
+                "    \"reboot-strategy\": |-\n",
+                "      off\n",
+                "\"write_files\":\n",
+                "- \"content\": |\n",
+                "    https://downloads.dcos.io/dcos/stable\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/repository-url\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [\"dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\", \"dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\"]\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/cluster-packages.json\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [Journal]\n",
+                "    MaxLevelConsole=warning\n",
+                "    RateLimitInterval=1s\n",
+                "    RateLimitBurst=20000\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/systemd/journald.conf.d/dcos.conf\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    rexray:\n",
+                "      loglevel: info\n",
+                "      modules:\n",
+                "        default-admin:\n",
+                "          host: tcp://127.0.0.1:61003\n",
+                "      storageDrivers:\n",
+                "      - ec2\n",
+                "      volume:\n",
+                "        unmount:\n",
+                "          ignoreusedcount: true\n",
+                "  \"path\": |-\n",
+                "    /etc/rexray/config.yml\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    MESOS_CLUSTER=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-master-provider\n",
+                "- \"content\": |\n",
+                "    ADMINROUTER_ACTIVATE_AUTH_MODULE=",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/adminrouter.env\n",
+                "- \"content\": |\n",
+                "    MASTER_SOURCE=exhibitor_uri\n",
+                "    EXHIBITOR_URI=http://",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                ":8181/exhibitor/v1/cluster/status",
+                "\n",
+                "    EXHIBITOR_ADDRESS=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    RESOLVERS=169.254.169.253\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/dns_config\n",
+                "- \"content\": |\n",
+                "    EXHIBITOR_BACKEND=AWS_S3\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_S3_BUCKET=",
+                {
+                  "Ref": "ExhibitorS3Bucket"
+                },
+                "",
+                "\n",
+                "    AWS_S3_PREFIX=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/exhibitor\n",
+                "- \"content\": |\n",
+                "    {\"uiConfiguration\":{\"plugins\":{\"banner\":{\"enabled\":false,\"backgroundColor\":\"#1E232F\",\"foregroundColor\":\"#FFFFFF\",\"headerTitle\":null,\"headerContent\":null,\"footerContent\":null,\"imagePath\":null,\"dismissible\":null},\"branding\":{\"enabled\":false},\"external-links\": {\"enabled\": false},\n",
+                "\n",
+                "    \"authentication\":{\"enabled\":false},\n",
+                "\n",
+                "    \"oauth\":{\"enabled\":",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                ",\"authHost\":\"https://dcos.auth0.com\"},",
+                "\n",
+                "\n",
+                "\n",
+                "    \"tracking\":{\"enabled\":true}}}}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/ui-config.json\n",
+                "- \"content\": |\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_ID=",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_NAME=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_MASTER_ROLE_NAME=",
+                {
+                  "Ref": "MasterRole"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_SLAVE_ROLE_NAME=",
+                {
+                  "Ref": "SlaveRole"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/cfn_signal_metadata\n",
+                "- \"content\": |\n",
+                "    INTERNAL_MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "ElasticLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/aws_dnsnames\n",
+                "- \"content\": |-\n",
+                "    {}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/pkginfo.json\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/slave\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/aws\n"
+              ]
+            ]
+          }
+        },
+        "BlockDeviceMappings": [
+          {
+            "VirtualName": "ephemeral0",
+            "DeviceName": "/dev/sdb"
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "SlaveInstanceType",
+            "default"
+          ]
+        },
+        "IamInstanceProfile": {
+          "Ref": "SlaveInstanceProfile"
+        }
+      },
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "0d65cfc7-54a5-4eec-86d3-5d2492d226ad"
+        }
+      }
+    },
+    "PublicSlaveSecurityGroup": {
+      "Properties": {
+        "VpcId": {
+          "Ref": "Vpc"
+        },
+        "GroupDescription": "Mesos Slaves Public"
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4ea2bcf9-8d10-4d8c-a95c-7c26d34ac218"
+        }
+      }
+    },
+    "SlaveToPublicSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b515b1cb-182a-49d9-b397-2b28998dd4dc"
+        }
+      }
+    },
+    "PublicSlaveToSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "PublicSlaveSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "4112bdf8-fe6a-458f-a9c3-8ee8e81bf936"
+        }
+      }
+    },
+    "DHCPOptions": {
+      "Properties": {
+        "DomainName": {
+          "Fn::If": [
+            "RegionIsUsEast1",
+            "ec2.internal",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ".compute.internal"
+                ]
+              ]
+            }
+          ]
+        },
+        "DomainNameServers": [
+          "AmazonProvidedDNS"
+        ]
+      },
+      "Type": "AWS::EC2::DHCPOptions",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "cab5ed47-4f4b-4804-9234-c9ee128ff1e2"
+        }
+      }
+    },
+    "Vpc": {
+      "Properties": {
+        "Tags": [
+          {
+            "Value": {
+              "Ref": "AWS::StackName"
+            },
+            "Key": "Application"
+          },
+          {
+            "Value": "Public",
+            "Key": "Network"
+          }
+        ],
+        "CidrBlock": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "VPCSubnetRange",
+            "default"
+          ]
+        },
+        "EnableDnsHostnames": "true",
+        "EnableDnsSupport": "true"
+      },
+      "Type": "AWS::EC2::VPC",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "d5b2427f-2b9a-4f4b-8c23-048ebed12e67"
+        }
+      }
+    },
+    "MasterToSlaveIngress": {
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Ref": "MasterSecurityGroup"
+        },
+        "IpProtocol": "-1",
+        "GroupId": {
+          "Ref": "SlaveSecurityGroup"
+        },
+        "FromPort": "0",
+        "ToPort": "65535"
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "c63f4cb0-df20-480a-8acd-557e7d47aeb4"
+        }
+      }
+    },
+    "MasterLaunchConfig": {
+      "Properties": {
+        "EbsOptimized": "true",
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "SecurityGroups": [
+          {
+            "Ref": "MasterSecurityGroup"
+          },
+          {
+            "Ref": "AdminSecurityGroup"
+          }
+        ],
+        "ImageId": {
+          "Fn::FindInMap": [
+            "RegionToAmi",
+            {
+              "Ref": "AWS::Region"
+            },
+            "stable"
+          ]
+        },
+        "AssociatePublicIpAddress": "true",
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#cloud-config\n",
+                "\"coreos\":\n",
+                "  \"units\":\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Formats the /var/lib ephemeral drive\n",
+                "      Before=var-lib.mount dbus.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      RemainAfterExit=yes\n",
+                "      ExecStart=/bin/bash -c \"(blkid -t TYPE=ext4 | grep xvdb) || (/usr/sbin/mkfs.ext4 -F /dev/xvdb)\"\n",
+                "    \"name\": |-\n",
+                "      format-var-lib-ephemeral.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Mount /var/lib\n",
+                "      Before=dbus.service\n",
+                "      [Mount]\n",
+                "      What=/dev/xvdb\n",
+                "      Where=/var/lib\n",
+                "      Type=ext4\n",
+                "    \"name\": |-\n",
+                "      var-lib.mount\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      etcd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      update-engine.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"mask\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      locksmithd.service\n",
+                "  - \"command\": |-\n",
+                "      stop\n",
+                "    \"name\": |-\n",
+                "      systemd-resolved.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      systemd-journald.service\n",
+                "  - \"command\": |-\n",
+                "      restart\n",
+                "    \"name\": |-\n",
+                "      docker.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Before=dcos.target\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /etc/profile.d\n",
+                "      ExecStart=/usr/bin/ln -sf /opt/mesosphere/environment.export /etc/profile.d/dcos.sh\n",
+                "    \"name\": |-\n",
+                "      dcos-link-env.service\n",
+                "  - \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Download DC/OS to this host.\n",
+                "      After=network-online.target\n",
+                "      Wants=network-online.target\n",
+                "      ConditionPathExists=!/opt/mesosphere/\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      ExecStartPre=/usr/bin/curl --keepalive-time 2 -fLsSv --retry 20 -Y 100000 -y 60 -o /tmp/bootstrap.tar.xz https://downloads.dcos.io/dcos/stable/bootstrap/e73ba2b1cd17795e4dcb3d6647d11a29b9c35084.bootstrap.tar.xz\n",
+                "      ExecStartPre=/usr/bin/mkdir -p /opt/mesosphere\n",
+                "      ExecStart=/usr/bin/tar -axf /tmp/bootstrap.tar.xz -C /opt/mesosphere\n",
+                "      ExecStartPost=-/usr/bin/rm -f /tmp/bootstrap.tar.xz\n",
+                "    \"name\": |-\n",
+                "      dcos-download.service\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |\n",
+                "      [Unit]\n",
+                "      Description=Pkgpanda: Specialize DC/OS for this host.\n",
+                "      Requires=dcos-download.service\n",
+                "      After=dcos-download.service\n",
+                "      [Service]\n",
+                "      Type=oneshot\n",
+                "      StandardOutput=journal+console\n",
+                "      StandardError=journal+console\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd\n",
+                "      [Install]\n",
+                "      WantedBy=multi-user.target\n",
+                "    \"enable\": !!bool |-\n",
+                "      true\n",
+                "    \"name\": |-\n",
+                "      dcos-setup.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  - \"command\": |-\n",
+                "      start\n",
+                "    \"content\": |-\n",
+                "      [Unit]\n",
+                "      Description=AWS Setup: Signal CloudFormation Success\n",
+                "      ConditionPathExists=!/var/lib/dcos-cfn-signal\n",
+                "      [Service]\n",
+                "      Type=simple\n",
+                "      Restart=on-failure\n",
+                "      StartLimitInterval=0\n",
+                "      RestartSec=15s\n",
+                "      EnvironmentFile=/opt/mesosphere/environment\n",
+                "      EnvironmentFile=/opt/mesosphere/etc/cfn_signal_metadata\n",
+                "      Environment=\"AWS_CFN_SIGNAL_THIS_RESOURCE=MasterServerGroup\"\n",
+                "      ExecStartPre=/bin/ping -c1 leader.mesos\n",
+                "      ExecStartPre=/opt/mesosphere/bin/cfn-signal\n",
+                "      ExecStart=/usr/bin/touch /var/lib/dcos-cfn-signal\n",
+                "    \"name\": |-\n",
+                "      dcos-cfn-signal.service\n",
+                "    \"no_block\": !!bool |-\n",
+                "      true\n",
+                "  \"update\":\n",
+                "    \"reboot-strategy\": |-\n",
+                "      off\n",
+                "\"write_files\":\n",
+                "- \"content\": |\n",
+                "    https://downloads.dcos.io/dcos/stable\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/repository-url\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [\"dcos-config--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\", \"dcos-metadata--setup_500d179ba527f84b6fdf5fb37d53631249fc123e\"]\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-flags/cluster-packages.json\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    [Journal]\n",
+                "    MaxLevelConsole=warning\n",
+                "    RateLimitInterval=1s\n",
+                "    RateLimitBurst=20000\n",
+                "  \"owner\": |-\n",
+                "    root\n",
+                "  \"path\": |-\n",
+                "    /etc/systemd/journald.conf.d/dcos.conf\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    rexray:\n",
+                "      loglevel: info\n",
+                "      modules:\n",
+                "        default-admin:\n",
+                "          host: tcp://127.0.0.1:61003\n",
+                "      storageDrivers:\n",
+                "      - ec2\n",
+                "      volume:\n",
+                "        unmount:\n",
+                "          ignoreusedcount: true\n",
+                "  \"path\": |-\n",
+                "    /etc/rexray/config.yml\n",
+                "  \"permissions\": |-\n",
+                "    0644\n",
+                "- \"content\": |\n",
+                "    MESOS_CLUSTER=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-master-provider\n",
+                "- \"content\": |\n",
+                "    ADMINROUTER_ACTIVATE_AUTH_MODULE=",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/adminrouter.env\n",
+                "- \"content\": |\n",
+                "    MASTER_SOURCE=exhibitor_uri\n",
+                "    EXHIBITOR_URI=http://",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                ":8181/exhibitor/v1/cluster/status",
+                "\n",
+                "    EXHIBITOR_ADDRESS=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    RESOLVERS=169.254.169.253\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/dns_config\n",
+                "- \"content\": |\n",
+                "    EXHIBITOR_BACKEND=AWS_S3\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_S3_BUCKET=",
+                {
+                  "Ref": "ExhibitorS3Bucket"
+                },
+                "",
+                "\n",
+                "    AWS_S3_PREFIX=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/exhibitor\n",
+                "- \"content\": |\n",
+                "    {\"uiConfiguration\":{\"plugins\":{\"banner\":{\"enabled\":false,\"backgroundColor\":\"#1E232F\",\"foregroundColor\":\"#FFFFFF\",\"headerTitle\":null,\"headerContent\":null,\"footerContent\":null,\"imagePath\":null,\"dismissible\":null},\"branding\":{\"enabled\":false},\"external-links\": {\"enabled\": false},\n",
+                "\n",
+                "    \"authentication\":{\"enabled\":false},\n",
+                "\n",
+                "    \"oauth\":{\"enabled\":",
+                {
+                  "Ref": "OAuthEnabled"
+                },
+                ",\"authHost\":\"https://dcos.auth0.com\"},",
+                "\n",
+                "\n",
+                "\n",
+                "    \"tracking\":{\"enabled\":true}}}}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/ui-config.json\n",
+                "- \"content\": |\n",
+                "    AWS_REGION=",
+                {
+                  "Ref": "AWS::Region"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_ID=",
+                {
+                  "Ref": "AWS::StackId"
+                },
+                "",
+                "\n",
+                "    AWS_STACK_NAME=",
+                {
+                  "Ref": "AWS::StackName"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_MASTER_ROLE_NAME=",
+                {
+                  "Ref": "MasterRole"
+                },
+                "",
+                "\n",
+                "    AWS_IAM_SLAVE_ROLE_NAME=",
+                {
+                  "Ref": "SlaveRole"
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/cfn_signal_metadata\n",
+                "- \"content\": |\n",
+                "    INTERNAL_MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "InternalMasterLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "    MASTER_LB_DNSNAME=",
+                {
+                  "Fn::GetAtt": [
+                    "ElasticLoadBalancer",
+                    "DNSName"
+                  ]
+                },
+                "",
+                "\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/aws_dnsnames\n",
+                "- \"content\": |-\n",
+                "    {}\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/pkginfo.json\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/master\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/aws_master\n",
+                "- \"content\": \"\"\n",
+                "  \"path\": |-\n",
+                "    /etc/mesosphere/roles/aws\n"
+              ]
+            ]
+          }
+        },
+        "BlockDeviceMappings": [
+          {
+            "VirtualName": "ephemeral0",
+            "DeviceName": "/dev/sdb"
+          }
+        ],
+        "InstanceType": {
+          "Fn::FindInMap": [
+            "Parameters",
+            "MasterInstanceType",
+            "default"
+          ]
+        },
+        "IamInstanceProfile": {
+          "Ref": "MasterInstanceProfile"
+        }
+      },
+      "Type": "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "069de8be-dfa4-43ff-b2bd-04dbba3e66db"
+        }
+      }
+    }
+  }
+}
