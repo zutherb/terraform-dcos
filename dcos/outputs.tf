@@ -1,5 +1,5 @@
-output "internal_master" {
-  value = "http://${aws_elb.internal_master.dns_name}"
+output "internal_master_dns" {
+  value = "${aws_elb.internal_master.dns_name}"
 }
 
 output "public_slave" {
