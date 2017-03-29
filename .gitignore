@@ -5,3 +5,4 @@ dcos/
 *.tfstate.backup
 *.plan
 *.tfvars
+.DS_Store
