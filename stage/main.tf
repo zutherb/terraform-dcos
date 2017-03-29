@@ -14,6 +14,7 @@ module "dev_dcos" {
     source = "../dcos"
     env = "stage"
     aws_region = "us-east-1"
+    slave_instance_count = 3
     aws_subnet_public_a_id = "subnet-4bd3583c"
     aws_subnet_public_b_id = "subnet-189d3641"
     aws_subnet_public_c_id = "subnet-4490466f" #actually AZ 1d
