@@ -1,5 +1,5 @@
 resource "aws_elb" "public_slaves" {
-  name = "public-slave-${var.elb_version}-load-balancer"
+  name = "${var.stack_name}-public-slave-lb"
 
   subnets = ["${var.aws_subnet_public_a_id}"]
 

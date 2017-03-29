@@ -1,5 +1,5 @@
 resource "aws_security_group" "master_lb" {
-  name = "master_lb"
+  name = "${var.env}_dcos_master_lb"
   description = "Mesos Master LB"
 
   vpc_id = "${var.aws_vpc_id}"

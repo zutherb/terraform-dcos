@@ -1,5 +1,5 @@
 resource "aws_security_group" "public_slave" {
-  name = "Public-Slaves-${var.stack_name}"
+  name = "${var.stack_name}-Public-Slaves"
   description = "Mesos Public Slaves"
 
   vpc_id = "${var.aws_vpc_id}"

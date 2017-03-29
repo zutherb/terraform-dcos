@@ -1,5 +1,5 @@
 resource "aws_security_group" "admin" {
-  name = "admin"
+  name = "${var.env}-dcos-admin"
   description = "Enable admin access to servers"
 
   vpc_id = "${var.aws_vpc_id}"

@@ -1,5 +1,5 @@
 resource "aws_security_group" "master" {
-  name = "master-${var.stack_name}"
+  name = "${var.env}-master-${var.stack_name}"
   description = "Mesos Masters"
 
   vpc_id = "${var.aws_vpc_id}"

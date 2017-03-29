@@ -1,5 +1,5 @@
 resource "aws_autoscaling_group" "master_server_group" {
-  name = "Masters-${var.stack_name}"
+  name = "${var.stack_name}-Masters"
 
   min_size = "${var.master_instance_count}"
   max_size = "${var.master_instance_count}"
@@ -13,6 +13,18 @@ resource "aws_autoscaling_group" "master_server_group" {
   tag {
     key = "role"
     value = "mesos-master"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "Name"
+    value = "${var.env}-mesos-master"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "environment"
+    value = "${var.env}"
     propagate_at_launch = true
   }
 

@@ -1,5 +1,5 @@
 resource "aws_autoscaling_group" "public_slave_server_group" {
-  name = "Public-Slaves-${var.stack_name}"
+  name = "${var.stack_name}-Public-Slaves"
 
   min_size = "${var.public_slave_instance_count}"
   max_size = "${var.public_slave_instance_count}"
@@ -13,6 +13,18 @@ resource "aws_autoscaling_group" "public_slave_server_group" {
   tag {
     key = "role"
     value = "mesos-slave"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "Name"
+    value = "${var.env}-mesos-slave"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key = "environment"
+    value = "${var.env}"
     propagate_at_launch = true
   }
 

@@ -3,9 +3,7 @@ variable "ssh_public_key" {
   default = "brohenry-dev"
 }
 
-variable "environment" {
-  description = "SSH public key to give SSH access"
-}
+variable "env" {}
 
 variable "aws_region" {
   description = "AWS Region to launch configuration in"
@@ -24,7 +22,6 @@ variable "aws_key_pair_name" {
 
 variable "stack_name" {
   description = "DCOS stack name"
-  default = "DCOS"
 }
 
 variable "elb_version" {
