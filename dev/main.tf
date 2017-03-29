@@ -19,3 +19,11 @@ module "dev_dcos" {
     aws_vpc_id = "vpc-9c7702f9"
     stack_name = "dev-dcos"
 }
+
+output "internal_master_dns" {
+  value = "${module.dev_dcos.internal_master_dns}"
+}
+
+output "public_slave_dns" {
+  value = "${module.dev_dcos.public_slave_dns}"
+}
