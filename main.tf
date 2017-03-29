@@ -10,7 +10,7 @@ variable "environment" {
 terraform {
   backend "s3" {
     bucket = "cnry-nonprod-terraform-state"
-    key    = "dcos/${var.environment}/main.tfstate"
+    key    = "dcos/dev/main.tfstate"
     region = "us-east-1"
   }
 }

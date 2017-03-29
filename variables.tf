@@ -1,15 +1,3 @@
-variable "aws_access_key" {
-  description = "AWS Access Key"
-}
-
-variable "aws_secret_key" {
-  description = "AWS Secret Key"
-}
-
-variable "aws_region" {
-  description = "AWS Region to launch configuration in"
-}
-
 variable "ssh_public_key" {
   description = "SSH public key to give SSH access"
 }
