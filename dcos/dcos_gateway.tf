@@ -8,7 +8,7 @@ resource "aws_instance" "dcos" {
 
   ami = "${lookup(var.ubuntu_amis, var.aws_region)}"
   instance_type = "${var.dcos_gateway_instance_type}"
-  key_name = "${aws_key_pair.dcos.key_name}"
+  key_name = "${var.aws_key_pair_name}"
   user_data = "${data.template_file.dcos_user_data.rendered}"
   associate_public_ip_address = false
 

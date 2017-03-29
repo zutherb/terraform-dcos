@@ -2,7 +2,7 @@ resource "aws_launch_configuration" "slave" {
   security_groups = ["${aws_security_group.slave.id}"]
   image_id = "${lookup(var.coreos_amis, var.aws_region)}"
   instance_type = "${var.slave_instance_type}"
-  key_name = "${aws_key_pair.dcos.key_name}"
+  key_name = "${var.aws_key_pair_name}"
   user_data = "${data.template_file.slave_user_data.rendered}"
   associate_public_ip_address = false
 

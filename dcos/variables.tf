@@ -14,6 +14,9 @@ variable "aws_region" {
 variable "aws_subnet_public_a_id" {}
 variable "aws_subnet_private_a_id" {}
 variable "aws_vpc_id" {}
+variable "aws_key_pair_name" {
+  default = "brohenry-dev"
+}
 
 ###############################
 ### CONFIGURABLE PARAMETERS ###

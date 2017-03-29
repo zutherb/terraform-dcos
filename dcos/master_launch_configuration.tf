@@ -6,7 +6,7 @@ resource "aws_launch_configuration" "master" {
   ]
   image_id = "${lookup(var.coreos_amis, var.aws_region)}"
   instance_type = "${var.master_instance_type}"
-  key_name = "${aws_key_pair.dcos.key_name}"
+  key_name = "${var.aws_key_pair_name}"
   user_data = "${data.template_file.master_user_data.rendered}"
   associate_public_ip_address = false
 
