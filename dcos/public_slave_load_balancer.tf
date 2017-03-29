@@ -1,7 +1,11 @@
 resource "aws_elb" "public_slaves" {
   name = "${var.stack_name}-public-slave-lb"
 
-  subnets = ["${var.aws_subnet_public_a_id}"]
+  subnets = [
+    "${var.aws_subnet_public_a_id}",
+    "${var.aws_subnet_public_b_id}",
+    "${var.aws_subnet_public_c_id}",
+  ]
 
   security_groups = ["${aws_security_group.public_slave.id}"]
 
