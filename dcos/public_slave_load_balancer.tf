@@ -13,7 +13,7 @@ resource "aws_elb" "public_slaves" {
     healthy_threshold = 2
     unhealthy_threshold = 2
     timeout = 5
-    target = "HTTP:80/"
+    target = "HTTP:9090/_haproxy_health_check"
     interval = 30
   }
 
