@@ -23,6 +23,7 @@ module "dev_dcos" {
     aws_subnet_private_a_id = "subnet-a978efde"
     aws_subnet_private_b_id = "subnet-c744f39e"
     aws_subnet_private_c_id = "subnet-0dc01d26" #actually AZ 1d
+    fallback_dns = "10.30.164.4,10.30.164.20,10.30.164.36,169.254.169.253"
 }
 
 output "internal_master_dns" {
