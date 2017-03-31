@@ -17,6 +17,10 @@ variable "aws_subnet_private_a_id" {}
 variable "aws_subnet_private_b_id" {}
 variable "aws_subnet_private_c_id" {}
 
+variable "fallback_dns_0" {}
+variable "fallback_dns_1" {}
+variable "fallback_dns_2" {}
+
 variable "aws_vpc_id" {}
 variable "aws_key_pair_name" {
   default = "brohenry-dev"

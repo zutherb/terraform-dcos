@@ -108,6 +108,18 @@
       off
 "write_files":
 - "content": |
+    {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}
+  "path": |-
+    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan.json
+- "content": |
+    {"zk": "zk://zk-1.zk:2181,zk-2.zk:2181,zk-3.zk:2181,zk-4.zk:2181,zk-5.zk:2181/mesos", "refreshSeconds": 30, "ttl": 60, "domain": "mesos", "port": 61053, "resolvers": ["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"], "timeout": 5, "listener": "0.0.0.0", "email": "root.mesos-dns.mesos", "IPSources": ["host", "netinfo"], "SetTruncateBit": false }
+  "path": |-
+    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-dns-consul.json
+- "content": |
+    MESOS_DNS_CONFIG=/opt/mesosphere/etc/mesos-dns-consul.json
+  "path": |-
+    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-dns-extras.env
+- "content": |
     ${dcos_base_download_url}
   "owner": |-
     root
@@ -166,7 +178,7 @@ ${cluster_packages}
     MASTER_SOURCE=exhibitor_uri
     EXHIBITOR_URI=http://${internal_master_lb_dns_name}:8181/exhibitor/v1/cluster/status
     EXHIBITOR_ADDRESS=${internal_master_lb_dns_name}
-    RESOLVERS=${fallback_dns}
+    RESOLVERS="${fallback_dns_0},${fallback_dns_1},${fallback_dns_2},169.254.169.253"
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/dns_config
 - "content": |
