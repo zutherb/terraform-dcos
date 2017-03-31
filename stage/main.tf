@@ -10,7 +10,7 @@ terraform {
   }
 }
 
-module "dev_dcos" {
+module "stage_dcos" {
     source = "../dcos"
     env = "stage"
     aws_region = "us-east-1"
@@ -23,12 +23,15 @@ module "dev_dcos" {
     aws_subnet_private_c_id = "subnet-4690466d" #actually AZ 1d
     aws_vpc_id = "vpc-27214d42"
     stack_name = "stage-dcos"
+    fallback_dns_0 = "10.20.176.4"
+    fallback_dns_1 = "10.20.176.20"
+    fallback_dns_2 = "10.20.176.36"
 }
 
 output "internal_master_dns" {
-  value = "${module.dev_dcos.internal_master_dns}"
+  value = "${module.stage_dcos.internal_master_dns}"
 }
 
 output "public_slave_dns" {
-  value = "${module.dev_dcos.public_slave_dns}"
+  value = "${module.stage_dcos.public_slave_dns}"
 }

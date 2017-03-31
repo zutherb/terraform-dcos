@@ -27,5 +27,8 @@ data "template_file" "public_slave_user_data" {
     public_lb_dns_name          = "${aws_elb.public_slaves.dns_name}"
     exhibitor_s3_bucket         = "${aws_s3_bucket.exhibitor.id}"
     dcos_base_download_url      = "${var.dcos_base_download_url}"
+    fallback_dns_0              = "${var.fallback_dns_0}"
+    fallback_dns_1              = "${var.fallback_dns_1}"
+    fallback_dns_2              = "${var.fallback_dns_2}"
   }
 }
