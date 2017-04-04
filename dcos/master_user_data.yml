@@ -97,6 +97,7 @@
       StandardError=journal+console
       EnvironmentFile=/opt/mesosphere/environment
       ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd
+      ExecStartPost=/usr/bin/echo '{"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}' > /opt/mesosphere/etc/spartan.json
       [Install]
       WantedBy=multi-user.target
     "enable": !!bool |-
@@ -107,10 +108,6 @@
     "reboot-strategy": |-
       off
 "write_files":
-- "content": |
-    {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}
-  "path": |-
-    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan.json
 - "content": |
     {"zk": "zk://zk-1.zk:2181,zk-2.zk:2181,zk-3.zk:2181,zk-4.zk:2181,zk-5.zk:2181/mesos", "refreshSeconds": 30, "ttl": 60, "domain": "mesos", "port": 61053, "resolvers": ["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"], "timeout": 5, "listener": "0.0.0.0", "email": "root.mesos-dns.mesos", "IPSources": ["host", "netinfo"], "SetTruncateBit": false }
   "path": |-
