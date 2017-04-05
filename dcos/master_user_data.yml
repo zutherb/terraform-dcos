@@ -96,8 +96,8 @@
       StandardOutput=journal+console
       StandardError=journal+console
       EnvironmentFile=/opt/mesosphere/environment
-      ExecStart=/opt/mesosphere/bin/pkgpanda setup --no-block-systemd
-      ExecStartPost=/usr/bin/echo '{"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}' > /opt/mesosphere/etc/spartan.json
+      ExecStart=/opt/mesosphere/bin/pkgpanda setup
+      ExecStartPost=/bin/mv /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan-consul.json /opt/mesosphere/etc/spartan.json
       [Install]
       WantedBy=multi-user.target
     "enable": !!bool |-
@@ -116,6 +116,10 @@
     MESOS_DNS_CONFIG=/opt/mesosphere/etc/mesos-dns-consul.json
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-dns-extras.env
+- "content": |
+    {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}
+  "path": |-
+    /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan-consul.json
 - "content": |
     ${dcos_base_download_url}
   "owner": |-
