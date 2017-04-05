@@ -93,7 +93,7 @@ function setup_openvpnas {
 
     getent passwd ${admin_user}>/dev/null
     if [[ $? != 0 ]]; then
-      useradd ${admin_user}
+      useradd ${admin_user} -g ${admin_user}
       if [[ $? != 0 ]]; then
           echo "Failed while creating ${admin_user} user."
           exit 1
