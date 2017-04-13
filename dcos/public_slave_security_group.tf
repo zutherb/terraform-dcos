@@ -85,6 +85,16 @@ resource "aws_security_group_rule" "public_slave_ingress_443_443_tcp" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "public_slave_ingress_10000_service_tcp" {
+  security_group_id = "${aws_security_group.public_slave.id}"
+
+  type = "ingress"
+  from_port = 10000
+  to_port = 10000
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
 resource "aws_security_group_rule" "public_slave_ingress_broadcast_service_tcp" {
   security_group_id = "${aws_security_group.public_slave.id}"
 
