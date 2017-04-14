@@ -5,6 +5,8 @@ variable "ssh_public_key" {
 
 variable "env" {}
 
+variable "consul_datacenter" {}
+
 variable "aws_region" {
   description = "AWS Region to launch configuration in"
 }

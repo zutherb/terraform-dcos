@@ -27,15 +27,3 @@ module "dev_dcos" {
     fallback_dns_1 = "10.30.164.20"
     fallback_dns_2 = "10.30.164.36"
 }
-
-output "internal_master_dns" {
-  value = "${module.dev_dcos.internal_master_dns}"
-}
-
-output "public_slave_dns" {
-  value = "${module.dev_dcos.public_slave_dns}"
-}
-
-output "slave_dns" {
-  value = "${module.dev_dcos.slave_dns}"
-}
