@@ -35,3 +35,7 @@ output "internal_master_dns" {
 output "public_slave_dns" {
   value = "${module.stage_dcos.public_slave_dns}"
 }
+
+output "slave_dns" {
+  value = "${module.stage_dcos.slave_dns}"
+}
