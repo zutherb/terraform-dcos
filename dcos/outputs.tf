@@ -5,3 +5,7 @@ output "internal_master_dns" {
 output "public_slave_dns" {
   value = "${aws_elb.public_slaves.dns_name}"
 }
+
+output "slave_dns" {
+  value = "${aws_elb.slaves.dns_name}"
+}

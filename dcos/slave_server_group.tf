@@ -5,6 +5,8 @@ resource "aws_autoscaling_group" "slave_server_group" {
   max_size = "${var.slave_instance_count}"
   desired_capacity = "${var.slave_instance_count}"
 
+  load_balancers = ["${aws_elb.slaves.id}"]
+
   vpc_zone_identifier = [
     "${var.aws_subnet_private_a_id}",
     "${var.aws_subnet_private_b_id}",
