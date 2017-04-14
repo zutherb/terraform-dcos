@@ -1,10 +1,10 @@
 provider "consul" {
-    datacenter = "${var.consul_datacenter}"
+    datacenter = "${var.env}"
     address = "consul.service.canary.sh"
 }
 
 resource "consul_catalog_entry" "dcos_master" {
-    datacenter = "${var.consul_datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.internal_master.dns_name}"
     node = "catalog-dcos-master"
     service = {
@@ -13,7 +13,7 @@ resource "consul_catalog_entry" "dcos_master" {
 }
 
 resource "consul_catalog_entry" "dcos_public" {
-    datacenter = "${var.consul_datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
     node = "catalog-dcos-public"
     service = {
@@ -22,7 +22,7 @@ resource "consul_catalog_entry" "dcos_public" {
 }
 
 resource "consul_catalog_entry" "dcos_private" {
-    datacenter = "${var.consul_datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.slaves.dns_name}"
     node = "catalog-dcos-private"
     service = {
@@ -31,7 +31,7 @@ resource "consul_catalog_entry" "dcos_private" {
 }
 
 resource "consul_catalog_entry" "dcos_example_nginx" {
-    datacenter = "${var.datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
     node = "catalog-dcos-examle-nginx"
     service = {
@@ -41,7 +41,7 @@ resource "consul_catalog_entry" "dcos_example_nginx" {
 }
 
 resource "consul_catalog_entry" "dcos_broadcaster_subscriber" {
-    datacenter = "${var.datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
     node = "catalog-dcos-watch-live-broadcaster-subscriber"
     service = {
@@ -51,7 +51,7 @@ resource "consul_catalog_entry" "dcos_broadcaster_subscriber" {
 }
 
 resource "consul_catalog_entry" "dcos_broadcaster_producer" {
-    datacenter = "${var.datacenter}"
+    datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
     node = "catalog-dcos-watch-live-broadcaster-producer"
     service = {
