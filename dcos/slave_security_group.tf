@@ -47,20 +47,18 @@ resource "aws_security_group_rule" "slave_ingress_public_slave" {
 
 resource "aws_security_group_rule" "slave_ingress_service_10010" {
   security_group_id = "${aws_security_group.slave.id}"
-
-  type = "ingress"
-  from_port = 10010
-  to_port = 10010
-  protocol = "-1"
-  source_security_group_id = "${aws_security_group.public_slave.id}"
+  type        = "ingress"
+  from_port   = 10010
+  to_port     = 10010
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "slave_ingress_service_10011" {
   security_group_id = "${aws_security_group.slave.id}"
-
   type = "ingress"
   from_port = 10011
   to_port = 10011
   protocol = "-1"
-  source_security_group_id = "${aws_security_group.public_slave.id}"
+  cidr_blocks = ["0.0.0.0/0"]
 }
