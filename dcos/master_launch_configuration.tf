@@ -11,7 +11,7 @@ resource "aws_launch_configuration" "master" {
   associate_public_ip_address = false
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }
 

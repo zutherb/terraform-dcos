@@ -5,6 +5,8 @@ resource "aws_autoscaling_group" "master_server_group" {
   max_size = "${var.master_instance_count}"
   desired_capacity = "${var.master_instance_count}"
 
+  min_elb_capacity = "${var.master_instance_count}"
+
   load_balancers = ["${aws_elb.internal_master.id}"]
 
   vpc_zone_identifier = [
@@ -34,6 +36,6 @@ resource "aws_autoscaling_group" "master_server_group" {
   }
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }

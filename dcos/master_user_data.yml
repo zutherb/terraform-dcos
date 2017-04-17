@@ -117,7 +117,7 @@
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/mesos-dns-extras.env
 - "content": |
-    {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}","169.254.169.253"],"udp_port": 53,"tcp_port": 53}
+    {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}"],"udp_port": 53,"tcp_port": 53}
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan-consul.json
 - "content": |
