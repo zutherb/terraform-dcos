@@ -105,6 +105,10 @@
       true
     "name": |-
       dcos-setup.service
+  - "command": |-
+      restart
+    "name": |-
+      dcos-spartan.service
   "update":
     "reboot-strategy": |-
       off
@@ -180,7 +184,7 @@ ${cluster_packages}
     MASTER_SOURCE=exhibitor_uri
     EXHIBITOR_URI=http://${internal_master_lb_dns_name}:8181/exhibitor/v1/cluster/status
     EXHIBITOR_ADDRESS=${internal_master_lb_dns_name}
-    RESOLVERS=${fallback_dns}
+    RESOLVERS="${fallback_dns_0},${fallback_dns_1},${fallback_dns_2}"
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/dns_config
 - "content": |

@@ -104,6 +104,10 @@
       true
     "name": |-
       dcos-setup.service
+  - "command": |-
+      restart
+    "name": |-
+      dcos-spartan.service
   "update":
     "reboot-strategy": |-
       off
