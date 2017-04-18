@@ -7,7 +7,7 @@ resource "aws_launch_configuration" "public_slave" {
   associate_public_ip_address = true
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }
 

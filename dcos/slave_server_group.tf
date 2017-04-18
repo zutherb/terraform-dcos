@@ -33,6 +33,6 @@ resource "aws_autoscaling_group" "slave_server_group" {
   }
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }
