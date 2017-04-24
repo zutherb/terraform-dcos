@@ -71,3 +71,14 @@ resource "consul_catalog_entry" "dcos_broadcaster_producer" {
         port = 443
     }
 }
+
+
+resource "consul_catalog_entry" "dcos_wras_api" {
+    datacenter = "${var.env}"
+    address = "${aws_elb.public_slaves.dns_name}"
+    node = "catalog-dcos-wras-api"
+    service = {
+        name = "dcos-wras-api"
+        port = 80
+    }
+}
