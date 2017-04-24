@@ -106,6 +106,32 @@
     "name": |-
       dcos-setup.service
   - "command": |-
+      start
+    "content": |
+      [Unit]
+      Description=Consul
+      After=docker.service
+      Requires=docker.service
+      [Service]
+      EnvironmentFile=/etc/environment
+      Restart=always
+      RestartSec=15
+      Environment=VERSION=0.8.1
+      Environment=CONTAINER=consul
+      ExecStartPre=-/usr/bin/docker kill $${CONTAINER}
+      ExecStartPre=-/usr/bin/docker rm $${CONTAINER}
+      ExecStartPre=/usr/bin/docker pull $${CONTAINER}:$${VERSION}
+      ExecStart=/usr/bin/docker run --name $${CONTAINER} \
+        -e CONSUL_LOCAL_CONFIG='{"datacenter":"${env}","node_name":"dcos-public-slave-$${COREOS_PRIVATE_IPV4}"}' \
+        --net=host consul agent -bind=$${COREOS_PRIVATE_IPV4}  \
+        -client=$${COREOS_PRIVATE_IPV4} \
+        -retry-join=consul.service.canary.sh \
+        $${CONTAINER}:$${VERSION}
+    "enable": !!bool |-
+      true
+    "name": |-
+      consul-agent.service
+  - "command": |-
       restart
     "name": |-
       dcos-spartan.service

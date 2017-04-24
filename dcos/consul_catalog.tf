@@ -30,12 +30,24 @@ resource "consul_catalog_entry" "dcos_private" {
     }
 }
 
-resource "consul_catalog_entry" "dcos_example_nginx" {
+resource "consul_catalog_entry" "dcos_example_nginx_external" {
     datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
-    node = "catalog-dcos-examle-nginx"
+    node = "catalog-dcos-examle-nginx-external"
     service = {
-        name = "dcos-example-nginx"
+        name = "example-nginx"
+        tags = ["external"]
+        port = 80
+    }
+}
+
+resource "consul_catalog_entry" "dcos_example_nginx_internal" {
+    datacenter = "${var.env}"
+    address = "marathon-lb-internal.service.${var.env}.canary.sh"
+    node = "catalog-dcos-example-nginx-internal"
+    service = {
+        name = "example-nginx"
+        tags = ["internal"]
         port = 80
     }
 }

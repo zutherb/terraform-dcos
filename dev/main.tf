@@ -15,7 +15,7 @@ module "dev_dcos" {
     stack_name = "dev-dcos"
     env = "dev"
     aws_region = "us-east-1"
-    slave_instance_count = 2
+    slave_instance_count = 3
     aws_vpc_id = "vpc-9c7702f9"
     aws_subnet_public_a_id = "subnet-aa78efdd"
     aws_subnet_public_b_id = "subnet-f944f3a0"

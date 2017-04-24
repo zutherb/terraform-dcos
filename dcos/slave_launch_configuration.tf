@@ -18,6 +18,7 @@ data "template_file" "slave_user_data" {
     authentication_enabled      = "${var.authentication_enabled}"
     bootstrap_id                = "${var.bootstrap_id}"
     stack_name                  = "${var.stack_name}"
+    env                         = "${var.env}"
     aws_region                  = "${var.aws_region}"
     cluster_packages            = "${var.cluster_packages}"
     aws_access_key_id           = "${aws_iam_access_key.host_keys.id}"
