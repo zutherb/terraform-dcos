@@ -139,6 +139,10 @@
       off
 "write_files":
 - "content": |
+    MESOS_RESOURCES=[{"name":"ports","type":"RANGES","ranges": {"range": [{"begin": 80, "end": 80},{"begin": 443, "end": 443},{"begin": 1025, "end": 2180},{"begin": 2182, "end": 3887},{"begin": 3889, "end": 5049},{"begin": 5052, "end": 8079},{"begin": 8082, "end": 8180},{"begin": 8182, "end": 32000}]}}]
+  "path": |-
+    /run/dcos/etc/mesos-slave
+- "content": |
     {"upstream_resolvers":["${fallback_dns_0}","${fallback_dns_1}","${fallback_dns_2}"],"udp_port": 53,"tcp_port": 53}
   "path": |-
     /etc/mesosphere/setup-packages/dcos-provider-aws--setup/etc/spartan-consul.json
