@@ -52,6 +52,17 @@ resource "consul_catalog_entry" "dcos_example_nginx_internal" {
     }
 }
 
+resource "consul_catalog_entry" "dcos_example_ce_panel_internal" {
+    datacenter = "${var.env}"
+    address = "marathon-lb-internal.service.${var.env}.canary.sh"
+    node = "catalog-dcos-ce-panel"
+    service = {
+        name = "ce-panel"
+        tags = ["internal"]
+        port = 80
+    }
+}
+
 resource "consul_catalog_entry" "dcos_broadcaster_subscriber" {
     datacenter = "${var.env}"
     address = "${aws_elb.public_slaves.dns_name}"
