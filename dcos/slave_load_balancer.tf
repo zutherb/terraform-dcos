@@ -31,4 +31,11 @@ resource "aws_elb" "slaves" {
     lb_port = 10011
     lb_protocol = "tcp"
   }
+
+  listener {
+    instance_port = 10005
+    instance_protocol = "tcp"
+    lb_port = 10005
+    lb_protocol = "tcp"
+  }
 }
