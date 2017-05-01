@@ -86,7 +86,7 @@ resource "consul_catalog_entry" "dcos_broadcaster_producer" {
 
 resource "consul_catalog_entry" "dcos_wras_api" {
     datacenter = "${var.env}"
-    address = "${aws_elb.public_slaves.dns_name}"
+    address = "${aws_elb.slaves.dns_name}"
     node = "catalog-dcos-wras-api"
     service = {
         name = "dcos-wras-api"
