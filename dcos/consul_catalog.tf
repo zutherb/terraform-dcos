@@ -93,3 +93,13 @@ resource "consul_catalog_entry" "dcos_wras_api" {
         port = 80
     }
 }
+
+resource "consul_catalog_entry" "dcos_watch_live_negotiator" {
+    datacenter = "${var.env}"
+    address = "${aws_elb.slaves.dns_name}"
+    node = "catalog-watch-live-negotiator"
+    service = {
+        name = "dcos-watch-live-negotiator"
+        port = 80
+    }
+}
